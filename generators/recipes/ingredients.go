@@ -65,6 +65,10 @@ func (ingSet *ingredientsSet) toString() {
 				}
 			}
 		}
-		fmt.Printf("%v: %v\n", ing, strings.Join(strList, " + "))
+		if len(strList) == 0 {
+			fmt.Printf("%v\n", ing)
+		} else {
+			fmt.Printf("%v: %v\n", ing, strings.Join(strList, " + "))
+		}
 	}
 }

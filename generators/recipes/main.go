@@ -31,6 +31,7 @@ func main() {
 	recipeFiles := []string{
 		"data/gnocchi-with-chicken-and-spinach.cook",
 		"data/houbove-rizotto.cook",
+		"data/sekana-z-cervene-repy.cook",
 	}
 	for _, recipeFile := range recipeFiles {
 		r, err := readRecipeFromFile(recipeFile)
