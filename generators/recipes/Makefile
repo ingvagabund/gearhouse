@@ -27,3 +27,7 @@ example: build
 .PHONY: verify-boilerplates
 verify-boilerplates:
 	go tool boilersuite --author "Gearhouse" .
+
+.PHONY: clean
+clean:
+	rm -rf _output
