@@ -33,24 +33,13 @@ func readRecipeFromFile(filename string) (*cooklang.Recipe, error) {
 	return cooklang.ParseString(string(data))
 }
 
-// Example struct matching the YAML structure
-type Shop struct {
-	Name       string     `yaml:"name"`
-	Categories []Category `yaml:"categories"`
-}
-
-type Category struct {
-	Name string   `yaml: "name"`
-	List []string `yaml: "list"`
-}
-
-func readShopCategories(filename string) (*Shop, error) {
+func readShopCategories(filename string) (*pkg.Shop, error) {
 	data, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return nil, err
 	}
 
-	var shop Shop
+	var shop pkg.Shop
 	if err := yaml.Unmarshal(data, &shop); err != nil {
 		return nil, err
 	}
@@ -58,18 +47,8 @@ func readShopCategories(filename string) (*Shop, error) {
 	return &shop, nil
 }
 
-func constructIngredientIndex(shop *Shop) map[string]int {
-	mapping := make(map[string]int)
-	for idx, category := range shop.Categories {
-		for _, item := range category.List {
-			mapping[item] = idx
-		}
-	}
-	return mapping
-}
-
-func printIngredientsByShopIndex(ingSet *pkg.IngredientsSet, shop *Shop) {
-	mapping := constructIngredientIndex(shop)
+func printIngredientsByShopIndex(ingSet *pkg.IngredientsSet, shop *pkg.Shop) {
+	mapping := pkg.ConstructIngredientIndex(shop)
 
 	// index -> []ingredient
 	listing := make(map[int][]string)
