@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
-	"log"
 	"maps"
 	"os"
 	"slices"
@@ -11,7 +10,6 @@ import (
 
 	"github.com/aquilax/cooklang-go"
 	"github.com/ingvagabund/gearhouse/generators/recipes/pkg"
-	"github.com/spf13/pflag"
 	"gopkg.in/yaml.v3"
 	"k8s.io/klog/v2"
 )
@@ -79,23 +77,8 @@ func printIngredientsByShopIndex(ingSet *pkg.IngredientsSet, shop *pkg.Shop) {
 
 func main() {
 
-	var recipeFilenames []string
-	var shopFilename string
-	pflag.StringSliceVar(&recipeFilenames, "recipe", []string{}, "List of recipes")
-	pflag.StringVar(&shopFilename, "shop", "", "Shop to visit")
-	pflag.Parse()
-
-	if len(recipeFilenames) == 0 {
-		klog.Error("At least one recipe needs to be provided")
-		os.Exit(1)
-		return
-	}
-
-	if len(shopFilename) == 0 {
-		klog.Error("A shop to visit needs to be provided")
-		os.Exit(1)
-		return
-	}
+	initFlags()
+	validateFlags()
 
 	shop, err := readShopCategories(shopFilename)
 	if err != nil {
@@ -109,7 +92,8 @@ func main() {
 	for _, recipeFile := range recipeFilenames {
 		r, err := readRecipeFromFile(recipeFile)
 		if err != nil {
-			log.Fatal(err)
+			klog.Error(err)
+			os.Exit(1)
 			return
 		}
 
