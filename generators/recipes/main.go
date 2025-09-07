@@ -4,8 +4,13 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"maps"
+	"slices"
+	"sort"
 
 	"github.com/aquilax/cooklang-go"
+	"gopkg.in/yaml.v3"
+	"k8s.io/klog/v2"
 )
 
 // TODO(ingvagabund):
@@ -25,7 +30,79 @@ func readRecipeFromFile(filename string) (*cooklang.Recipe, error) {
 	return cooklang.ParseString(string(data))
 }
 
+// Example struct matching the YAML structure
+type Shop struct {
+	Name       string     `yaml:"name"`
+	Categories []Category `yaml:"categories"`
+}
+
+type Category struct {
+	Name string   `yaml: "name"`
+	List []string `yaml: "list"`
+}
+
+func readShopCategories(filename string) (*Shop, error) {
+	data, err := ioutil.ReadFile(filename)
+	if err != nil {
+		return nil, err
+	}
+
+	var shop Shop
+	if err := yaml.Unmarshal(data, &shop); err != nil {
+		return nil, err
+	}
+
+	return &shop, nil
+}
+
+func constructIngredientIndex(shop *Shop) map[string]int {
+	mapping := make(map[string]int)
+	for idx, category := range shop.Categories {
+		for _, item := range category.List {
+			mapping[item] = idx
+		}
+	}
+	return mapping
+}
+
+func printIngredientsByShopIndex(ingSet *ingredientsSet, shop *Shop) {
+	mapping := constructIngredientIndex(shop)
+
+	// index -> []ingredient
+	listing := make(map[int][]string)
+	for ing := range ingSet.ingredients {
+		idx, exists := mapping[ing]
+		if !exists {
+			klog.Infof("ingredient %q not found in %q shop", ing, shop.Name)
+			continue
+		}
+		listing[idx] = append(listing[idx], ing)
+	}
+
+	listingIndices := slices.Sorted(maps.Keys(listing))
+
+	for _, idx := range listingIndices {
+		ings := listing[idx]
+		sort.Strings(ings)
+		for _, ing := range ings {
+			str := ingSet.ingredients[ing].toString()
+			if str == "" {
+				fmt.Printf("%v\n", ing)
+			} else {
+				fmt.Printf("%v: %v\n", ing, str)
+			}
+		}
+	}
+}
+
 func main() {
+
+	shop, err := readShopCategories("data/globus-brno-ivanovice.yaml")
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+
 	ingSet := newIngredientsSet()
 
 	recipeFiles := []string{
@@ -45,8 +122,10 @@ func main() {
 		}
 	}
 
-	ingSet.toString()
+	// ingSet.toString()
 	ingSet.consolidate()
-	fmt.Printf("\n\n")
-	ingSet.toString()
+	// fmt.Printf("\n\n")
+	// ingSet.toString()
+
+	printIngredientsByShopIndex(ingSet, shop)
 }

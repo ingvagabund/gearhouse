@@ -1,0 +1,46 @@
+---
+name: Globus Brno Ivanovice
+categories:
+- name: "zelenina"
+  list:
+  - vetsi mrkev
+  - cibule
+  - cesnek
+- name: "bylinky"
+  list:
+  - cerstve bilinky
+- name: "chlazena zelenina"
+  list:
+  - cerstvy spenat
+- name: "houby"
+  list:
+  - lesni houby (nebo zampiony)
+- name: "syry"
+  list:
+  - parmazan
+  - parmazan|tvrdy syr
+- name: "mlecne vyrobky"
+  list:
+  - smetana na vareni
+  - maslo
+- name: "vejce&kureci"
+  list:
+  - kureci maso
+  - vajicko
+- name: "koreni"
+  list:
+  - bobkovy list
+  - kari
+  - kmin
+  - nove koreni
+  - pepr
+  - sul
+  - sladka cervena paprika
+- name: "oleje"
+  list:
+  - olej
+- name: "lusteniny"
+  list:
+  - cervena cocka
+  - gnocchi
+  - ryze na rizoto
