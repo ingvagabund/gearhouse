@@ -24,13 +24,15 @@ import (
 )
 
 var (
-	recipeFilenames []string
-	shopFilename    string
+	recipeFilenames     []string
+	shopFilename        string
+	printAllIngredients bool
 )
 
 func initFlags() {
-	pflag.StringSliceVar(&recipeFilenames, "recipe", []string{}, "List of recipes")
-	pflag.StringVar(&shopFilename, "shop", "", "Shop to visit")
+	pflag.StringSliceVar(&recipeFilenames, "recipe", recipeFilenames, "List of recipes")
+	pflag.StringVar(&shopFilename, "shop", shopFilename, "Shop to visit")
+	pflag.BoolVar(&printAllIngredients, "printAllIngredients", printAllIngredients, "Print all ingredients. E.g. water")
 	pflag.Parse()
 }
 

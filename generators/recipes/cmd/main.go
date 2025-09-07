@@ -37,6 +37,7 @@ import (
 // - ingredient expansion: e.g. "horky zeleninovy vyvar" -> list of ingredients to make it instead
 // - unit sticking: stick basic units (e.g. g, l, ...) into the quantity, while keep a longer "unit" with a blank (e.g. lzice, spetka, ...)
 // - extend the recipes with a number of servings
+// - include a database of ingredients I already have home (how to keep it up to date?)
 
 func readRecipeFromFile(filename string) (*cooklang.Recipe, error) {
 	data, err := ioutil.ReadFile(filename)
@@ -61,7 +62,7 @@ func readShopCategories(filename string) (*pkg.Shop, error) {
 	return &shop, nil
 }
 
-func printIngredientsByShopIndex(ingSet *pkg.IngredientsSet, shop *pkg.Shop) {
+func printIngredientsByShopIndex(ingSet *pkg.IngredientsSet, shop *pkg.Shop, printAllIngredients bool) {
 	mapping := pkg.ConstructIngredientIndex(shop)
 
 	// index -> []ingredient
@@ -69,8 +70,11 @@ func printIngredientsByShopIndex(ingSet *pkg.IngredientsSet, shop *pkg.Shop) {
 	for ing := range ingSet.Ingredients {
 		idx, exists := mapping[ing]
 		if !exists {
-			klog.Infof("ingredient %q not found in %q shop", ing, shop.Name)
-			continue
+			if !printAllIngredients {
+				klog.Infof("ingredient %q not found in %q shop", ing, shop.Name)
+				continue
+			}
+			idx = -1
 		}
 		listing[idx] = append(listing[idx], ing)
 	}
@@ -120,5 +124,5 @@ func main() {
 
 	ingSet.Consolidate()
 
-	printIngredientsByShopIndex(ingSet, shop)
+	printIngredientsByShopIndex(ingSet, shop, printAllIngredients)
 }

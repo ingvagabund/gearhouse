@@ -9,6 +9,7 @@ categories:
 - name: "bylinky"
   list:
   - cerstve bilinky
+  - cerstva bazalka
 - name: "chlazena zelenina"
   list:
   - cerstvy spenat
@@ -19,6 +20,9 @@ categories:
   list:
   - parmazan
   - parmazan|tvrdy syr
+- name: "hovezi maso"
+  list:
+  - mlete hovezi maso
 - name: "mlecne vyrobky"
   list:
   - smetana na vareni
@@ -36,6 +40,9 @@ categories:
   - pepr
   - sul
   - sladka cervena paprika
+  - smesi koreni Medvedi gril
+  - mlety muskatovy orisek
+  - provensalske koreni
 - name: "oleje"
   list:
   - olej
@@ -44,3 +51,10 @@ categories:
   - cervena cocka
   - gnocchi
   - ryze na rizoto
+  - lasagne
+- name: "mouky a cukry"
+  list:
+  - hladka mouka
+- name: "plechovky"
+  list:
+  - sekana rajcata z plechovky
