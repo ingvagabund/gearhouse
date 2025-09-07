@@ -8,6 +8,7 @@ categories:
   - cesnek
   - dyne hokaido
   - brambory
+  - batata
 - name: "bylinky"
   list:
   - cerstve bilinky
@@ -18,6 +19,7 @@ categories:
 - name: "houby"
   list:
   - lesni houby (nebo zampiony)
+  - zampion
 - name: "syry"
   list:
   - parmazan
@@ -26,6 +28,9 @@ categories:
 - name: "hovezi maso"
   list:
   - mlete hovezi maso
+- name: "ryby"
+  list:
+  - losos
 - name: "mlecne vyrobky"
   list:
   - smetana na vareni
