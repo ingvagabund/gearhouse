@@ -9,7 +9,7 @@ A shop is currently a simple yaml file.
 
 ```bash
 $ make build
-$ ./_output/bin/ingredients \
+$ ./_output/bin/recipes2ingredients \
   --recipe data/recipes/gnocchi-with-chicken-and-spinach.cook \
   --recipe data/recipes/houbove-rizotto.cook \
   --recipe data/recipes/sekana-z-cervene-repy.cook \
