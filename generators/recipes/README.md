@@ -10,8 +10,8 @@ A shop is currently a simple yaml file.
 ```bash
 $ make build
 $ ./_output/bin/ingredients \
-  --recipe data/gnocchi-with-chicken-and-spinach.cook \
-  --recipe data/houbove-rizotto.cook \
-  --recipe data/sekana-z-cervene-repy.cook \
-  --shop data/globus-brno-ivanovice.yaml
+  --recipe data/recipes/gnocchi-with-chicken-and-spinach.cook \
+  --recipe data/recipes/houbove-rizotto.cook \
+  --recipe data/recipes/sekana-z-cervene-repy.cook \
+  --shop data/shops/globus-brno-ivanovice.yaml
 ```
