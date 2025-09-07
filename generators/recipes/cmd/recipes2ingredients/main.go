@@ -62,8 +62,12 @@ func readShopCategories(filename string) (*pkg.Shop, error) {
 	return &shop, nil
 }
 
-func printIngredientsByShopIndex(ingSet *pkg.IngredientsSet, shop *pkg.Shop, printAllIngredients bool) {
+func printIngredientsByShopIndex(ingSet *pkg.IngredientsSet, shop *pkg.Shop, printAllIngredients bool, outputFormat string) {
 	mapping := pkg.ConstructIngredientIndex(shop)
+	if outputFormat == cookLangOutputFormat {
+		fmt.Printf("%v\n", ingSet.ToCookLang(true))
+		return
+	}
 
 	// index -> []ingredient
 	listing := make(map[int][]string)
@@ -124,5 +128,5 @@ func main() {
 
 	ingSet.Consolidate()
 
-	printIngredientsByShopIndex(ingSet, shop, printAllIngredients)
+	printIngredientsByShopIndex(ingSet, shop, printAllIngredients, output)
 }

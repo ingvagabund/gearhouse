@@ -98,3 +98,24 @@ func (ingSet *IngredientsSet) ToString() {
 		}
 	}
 }
+
+func (ingSet *IngredientsSet) ToCookLang(singleLine bool) string {
+	list := []string{}
+	for ingName := range ingSet.Ingredients {
+		for _, ing := range ingSet.Ingredients[ingName] {
+			if !ing.IsNumeric {
+				list = append(list, fmt.Sprintf("@%v{}", ingName))
+			} else {
+				if ing.Unit == "" {
+					list = append(list, fmt.Sprintf("@%v{%v}", ingName, ing.Quantity))
+				} else {
+					list = append(list, fmt.Sprintf("@%v{%v%%%v}", ingName, ing.Quantity, ing.Unit))
+				}
+			}
+		}
+	}
+	if singleLine {
+		return strings.Join(list, " ")
+	}
+	return strings.Join(list, "\n")
+}

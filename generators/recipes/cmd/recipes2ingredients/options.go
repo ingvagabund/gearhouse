@@ -27,12 +27,19 @@ var (
 	recipeFilenames     []string
 	shopFilename        string
 	printAllIngredients bool
+	output              string
+)
+
+const (
+	textOutputFormat     = "text"
+	cookLangOutputFormat = "cooklang"
 )
 
 func initFlags() {
 	pflag.StringSliceVar(&recipeFilenames, "recipe", recipeFilenames, "List of recipes")
 	pflag.StringVar(&shopFilename, "shop", shopFilename, "Shop to visit")
 	pflag.BoolVar(&printAllIngredients, "printAllIngredients", printAllIngredients, "Print all ingredients. E.g. water")
+	pflag.StringVar(&output, "output", "text", "Output format")
 	pflag.Parse()
 }
 
@@ -45,6 +52,12 @@ func validateFlags() {
 
 	if len(shopFilename) == 0 {
 		klog.Error("A shop to visit needs to be provided")
+		os.Exit(1)
+		return
+	}
+
+	if output != textOutputFormat && output != cookLangOutputFormat {
+		klog.Errorf("Invalid output format: only %v are valid", []string{textOutputFormat, cookLangOutputFormat})
 		os.Exit(1)
 		return
 	}
