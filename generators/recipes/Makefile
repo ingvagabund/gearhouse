@@ -14,11 +14,11 @@
 
 .PHONY: build
 build:
-	CGO_ENABLED=0 go build -o _output/bin/ingredients ./cmd
+	CGO_ENABLED=0 go build -o _output/bin/recipes2ingredients ./cmd/recipes2ingredients
 
 .PHONY: example
 example: build
-	./_output/bin/ingredients \
+	./_output/bin/recipes2ingredients \
 		--recipe data/recipes/gnocchi-with-chicken-and-spinach.cook \
 		--recipe data/recipes/houbove-rizotto.cook \
 		--recipe data/recipes/sekana-z-cervene-repy.cook \
