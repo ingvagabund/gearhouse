@@ -6,6 +6,8 @@ categories:
   - vetsi mrkev
   - cibule
   - cesnek
+  - dyne hokaido
+  - brambory
 - name: "bylinky"
   list:
   - cerstve bilinky
@@ -20,6 +22,7 @@ categories:
   list:
   - parmazan
   - parmazan|tvrdy syr
+  - emental
 - name: "hovezi maso"
   list:
   - mlete hovezi maso
@@ -43,6 +46,7 @@ categories:
   - smesi koreni Medvedi gril
   - mlety muskatovy orisek
   - provensalske koreni
+  - tymian
 - name: "oleje"
   list:
   - olej
