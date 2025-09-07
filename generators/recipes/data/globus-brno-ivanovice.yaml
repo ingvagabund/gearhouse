@@ -9,6 +9,8 @@ categories:
   - dyne hokaido
   - brambory
   - batata
+  - paprika
+  - okurka hadovka
 - name: "bylinky"
   list:
   - cerstve bilinky
@@ -20,14 +22,18 @@ categories:
   list:
   - lesni houby (nebo zampiony)
   - zampion
+- name: "ovoce"
+  list:
+  - jablko
 - name: "syry"
   list:
   - parmazan
   - parmazan|tvrdy syr
   - emental
-- name: "hovezi maso"
+- name: "hovezi maso a balene masa"
   list:
   - mlete hovezi maso
+  - slanina bok
 - name: "ryby"
   list:
   - losos
@@ -52,9 +58,12 @@ categories:
   - mlety muskatovy orisek
   - provensalske koreni
   - tymian
-- name: "oleje"
+- name: "oleje a omacky"
   list:
   - olej
+  - ustricna omacka
+  - sladka chilli omacka
+  - sladka horcice
 - name: "lusteniny"
   list:
   - cervena cocka
