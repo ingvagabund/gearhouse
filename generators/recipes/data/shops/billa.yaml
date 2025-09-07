@@ -1,0 +1,37 @@
+---
+name: Billa
+categories:
+- name: "bylinky"
+  list:
+  - cerstva bazalka
+- name: "zelenina"
+  list:
+  - cesnek
+  - cibule
+- name: "koreni"
+  list:
+  - pepr
+  - smesi koreni Medvedi gril
+  - sul
+  - mlety muskatovy orisek
+  - provensalske koreni
+- name: "chlazene maso"
+  list:
+  - mlete hovezi maso
+- name: "syry"
+  list:
+  - parmazan|tvrdy syr
+- name: "mlecne vyrobky"
+  list:
+  - smetana na vareni
+  - maslo
+- name: "testoviny a konzervy"
+  list:
+  - lasagne
+  - sekana rajcata z plechovky
+- name: "oleje"
+  list:
+  - olej
+- name: "cukry a mouky"
+  list:
+  - hladka mouka
