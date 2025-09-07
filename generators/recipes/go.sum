@@ -1,5 +1,7 @@
 github.com/aquilax/cooklang-go v0.2.0 h1:oC0hGjqSkjPSNz0FGb9bwTvOYgX2euUxOQWDzzOyChQ=
 github.com/aquilax/cooklang-go v0.2.0/go.mod h1:w8UlyehrdabhHxM1Qg+c6U0Scthpy8OOQbCEmtNyvTY=
+github.com/cert-manager/boilersuite v0.1.0 h1:+1IQyi8kAI9yK2LdhwUmGWcH/ND6geu+cKyFccxGGQ4=
+github.com/cert-manager/boilersuite v0.1.0/go.mod h1:1V/hWg8s4+tBfk24ZqM12l1w5PXAmSgZ574rVchEaIY=
 github.com/go-logr/logr v1.4.1 h1:pKouT5E8xu9zeFC39JXRDukb6JFQPXM5p5I91188VAQ=
 github.com/go-logr/logr v1.4.1/go.mod h1:9T104GzyrTigFIr8wt5mBrctHMim0Nb2HLGrmQ40KvY=
 github.com/spf13/pflag v1.0.10 h1:4EBh2KAYBwaONj6b2Ye1GiHfwjqyROoF4RwYO+vPwFk=

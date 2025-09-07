@@ -1,5 +1,5 @@
 /*
-Copyright 2025 The Gearhouse Authors.
+Copyright 2023 The cert-manager Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -14,25 +14,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package pkg
+package version
 
-// Example struct matching the YAML structure
-type Shop struct {
-	Name       string     `yaml:"name"`
-	Categories []Category `yaml:"categories"`
-}
+var (
+	// AppVersion is set by the Go linker
+	AppVersion = "development"
 
-type Category struct {
-	Name string   `yaml: "name"`
-	List []string `yaml: "list"`
-}
-
-func ConstructIngredientIndex(shop *Shop) map[string]int {
-	mapping := make(map[string]int)
-	for idx, category := range shop.Categories {
-		for _, item := range category.List {
-			mapping[item] = idx
-		}
-	}
-	return mapping
-}
+	// AppGitCommit is set by the Go linker
+	AppGitCommit = "0000000000000000000000000000000000000000"
+)

@@ -10,4 +10,9 @@ require (
 	k8s.io/klog/v2 v2.130.1
 )
 
-require github.com/go-logr/logr v1.4.1 // indirect
+require (
+	github.com/cert-manager/boilersuite v0.1.0 // indirect
+	github.com/go-logr/logr v1.4.1 // indirect
+)
+
+tool github.com/cert-manager/boilersuite

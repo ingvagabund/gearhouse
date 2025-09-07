@@ -1,6 +1,11 @@
 # github.com/aquilax/cooklang-go v0.2.0
 ## explicit; go 1.22.2
 github.com/aquilax/cooklang-go
+# github.com/cert-manager/boilersuite v0.1.0
+## explicit; go 1.19
+github.com/cert-manager/boilersuite
+github.com/cert-manager/boilersuite/internal/boilersuite
+github.com/cert-manager/boilersuite/internal/version
 # github.com/go-logr/logr v1.4.1
 ## explicit; go 1.18
 github.com/go-logr/logr
