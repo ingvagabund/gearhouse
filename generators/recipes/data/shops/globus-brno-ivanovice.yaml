@@ -4,6 +4,8 @@ categories:
 - name: "zelenina"
   list:
   - vetsi mrkev
+  - mrkev
+  - petrzel
   - cibule
   - cesnek
   - dyne hokaido
@@ -12,6 +14,9 @@ categories:
   - paprika
   - okurka hadovka
   - rajcata
+  - zazvor
+  - cervena repa
+  - chilli papricka
 - name: "bylinky"
   list:
   - cerstve bilinky
@@ -59,6 +64,8 @@ categories:
   - mlety muskatovy orisek
   - provensalske koreni
   - tymian
+  - rimsky mlety kmin
+  - kajensky pepr
 - name: "oleje a omacky"
   list:
   - olej
@@ -78,3 +85,5 @@ categories:
   list:
   - sekana rajcata z plechovky
   - plechovka fazole a kukurice
+  - rajsky protlak
+  - plechovka cervene fazole
