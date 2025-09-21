@@ -28,6 +28,7 @@ var (
 	shopFilename        string
 	printAllIngredients bool
 	output              string
+	withTitle bool
 )
 
 const (
@@ -38,8 +39,9 @@ const (
 func initFlags() {
 	pflag.StringSliceVar(&recipeFilenames, "recipe", recipeFilenames, "List of recipes")
 	pflag.StringVar(&shopFilename, "shop", shopFilename, "Shop to visit")
-	pflag.BoolVar(&printAllIngredients, "printAllIngredients", printAllIngredients, "Print all ingredients. E.g. water")
+	pflag.BoolVar(&printAllIngredients, "print-all-ingredients", printAllIngredients, "Print all ingredients. E.g. water")
 	pflag.StringVar(&output, "output", "text", "Output format")
+	pflag.BoolVar(&withTitle, "with-title", false, "Output recipe titles")
 	pflag.Parse()
 }
 

@@ -113,12 +113,18 @@ func main() {
 
 	ingSet := pkg.NewIngredientsSet()
 
+	titles := []string{}
 	for _, recipeFile := range recipeFilenames {
 		r, err := readRecipeFromFile(recipeFile)
 		if err != nil {
 			klog.Error(err)
 			os.Exit(1)
 			return
+		}
+
+		value, exists := r.Metadata["title"]
+		if exists {
+			titles = append(titles, value.(string))
 		}
 
 		for _, step := range r.Steps {
@@ -128,5 +134,10 @@ func main() {
 
 	ingSet.Consolidate()
 
+	if withTitle {
+		for _, title := range titles {
+			fmt.Printf(">> title: %v\n", title)
+		}
+	}
 	printIngredientsByShopIndex(ingSet, shop, printAllIngredients, output)
 }
