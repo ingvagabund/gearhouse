@@ -47,6 +47,8 @@ categories:
   list:
   - smetana na vareni
   - maslo
+  - mascarpone
+  - mleko
 - name: "vejce&kureci"
   list:
   - kureci maso
@@ -66,6 +68,8 @@ categories:
   - tymian
   - rimsky mlety kmin
   - kajensky pepr
+  - prasek do peciva
+  - pernikove koreni
 - name: "oleje a omacky"
   list:
   - olej
@@ -81,6 +85,10 @@ categories:
 - name: "mouky a cukry"
   list:
   - hladka mouka
+  - cukr moucka
+- name: "orechy"
+  list:
+  - orechy
 - name: "plechovky"
   list:
   - sekana rajcata z plechovky
