@@ -28,7 +28,7 @@ var (
 	shopFilename        string
 	printAllIngredients bool
 	output              string
-	withTitle bool
+	withTitle           bool
 )
 
 const (

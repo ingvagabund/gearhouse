@@ -24,17 +24,35 @@ import (
 )
 
 var (
-	segmentLength uint
+	segmentLength   uint
+	historyFilename string
+	recipeFilenames []string
 )
 
 func initFlags() {
-	pflag.UIntVar(&segmentLength, "segmentLength", 3, "Length of a segment. E.g. a working week can consist of 3 meal selections")
+	pflag.UintVar(&segmentLength, "segment-length", 3, "Length of a generated segment. E.g. a working week can consist of 3 meal selections")
+	pflag.StringVar(&historyFilename, "history-filename", historyFilename, "Path to a file that contains already entered meals")
+	pflag.StringSliceVar(&recipeFilenames, "recipe", recipeFilenames, "List of recipes")
 	pflag.Parse()
 }
 
 func validateFlags() {
 	if segmentLength == 0 {
-		klog.Error("The segment length must be positive")
+		klog.Error("The --segment-length must be positive")
+		os.Exit(1)
+		return
+	}
+
+	if len(historyFilename) == 0 {
+		klog.Error("The --history-filename flag must be set")
+		os.Exit(1)
+		return
+	}
+
+	// one recipe => all the meals are the same
+	// two recipes => meals alternate
+	if len(recipeFilenames) < 3 {
+		klog.Error("At least three recipes need to be provided")
 		os.Exit(1)
 		return
 	}

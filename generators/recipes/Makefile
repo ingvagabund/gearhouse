@@ -15,6 +15,7 @@
 .PHONY: build
 build:
 	CGO_ENABLED=0 go build -o _output/bin/recipes2ingredients ./cmd/recipes2ingredients
+	CGO_ENABLED=0 go build -o _output/bin/recipeselector ./cmd/recipeselector
 
 .PHONY: example
 example: build
