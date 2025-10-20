@@ -29,6 +29,7 @@ var (
 	printAllIngredients bool
 	output              string
 	withTitle           bool
+	log                 bool
 )
 
 const (
@@ -42,6 +43,7 @@ func initFlags() {
 	pflag.BoolVar(&printAllIngredients, "print-all-ingredients", printAllIngredients, "Print all ingredients. E.g. water")
 	pflag.StringVar(&output, "output", "text", "Output format")
 	pflag.BoolVar(&withTitle, "with-title", false, "Output recipe titles")
+	pflag.BoolVar(&log, "log", false, "Print a line to log in a cooklang format")
 	pflag.Parse()
 }
 

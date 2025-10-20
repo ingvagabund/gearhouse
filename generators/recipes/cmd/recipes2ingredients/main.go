@@ -134,6 +134,31 @@ func main() {
 
 	ingSet.Consolidate()
 
+	if len(recipeFilenames) == 1 && log {
+		r, err := readRecipeFromFile(recipeFilenames[0])
+		if err != nil {
+			klog.Error(err)
+			os.Exit(1)
+			return
+		}
+		keys := []string{}
+		for key := range r.Metadata {
+			if key == "source" || key == "serves" || key == "total time" || key == "serves" || key == "title" {
+				continue
+			}
+			keys = append(keys, key)
+		}
+		sort.Strings(keys)
+		if _, exists := r.Metadata["title"]; exists {
+			keys = append([]string{"title"}, keys...)
+		}
+		for _, key := range keys {
+			fmt.Printf(">> %v: %v\\n", key, r.Metadata[key])
+		}
+		printIngredientsByShopIndex(ingSet, shop, printAllIngredients, cookLangOutputFormat)
+		return
+	}
+
 	if withTitle {
 		for _, title := range titles {
 			fmt.Printf(">> title: %v\n", title)

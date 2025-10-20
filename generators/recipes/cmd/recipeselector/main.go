@@ -40,9 +40,13 @@ import (
 //   - at least that much fibers per N items
 
 const (
-	minimalMealGap  int = 3
-	minimalBeefGap  int = 2
-	maximalFiberGap int = 2
+	minimalMealGap     int = 3
+	minimalBeefGap     int = 2
+	maximalNonFiberGap int = 2
+	maximalNonVeganGap int = 2
+
+	dietaryOptionKey        = "dietary option"
+	dietaryOptionVegetarian = "vegetarian"
 )
 
 func readRecipeFromFile(filename string) (*cooklang.Recipe, error) {
@@ -216,7 +220,7 @@ func (dfs *dfsExploration) startExploration() {
 	dfs.processNode(0, []string{})
 	// process the valid paths
 	for _, path := range dfs.validPaths {
-		fmt.Printf("VP: %#v\n", path)
+		fmt.Printf("VP: %#v [%v]\n", path, dfs.validateFull(path))
 	}
 	fmt.Printf("Valid paths in total: %v\n", len(dfs.validPaths))
 }
@@ -228,9 +232,13 @@ func mealsList2Key(path []string) string {
 func (dfs *dfsExploration) processNode(level uint, path []string) {
 	// End the search and store the list
 	if level == segmentLength+3 {
-		key := mealsList2Key(path[:segmentLength])
+		newPath := path[:segmentLength]
+		key := mealsList2Key(newPath)
 		if _, exists := dfs.validPathsMap[key]; !exists {
-			dfs.validPaths = append(dfs.validPaths, append([]string{}, path[:segmentLength]...))
+			if !dfs.validateFull(newPath) {
+				return
+			}
+			dfs.validPaths = append(dfs.validPaths, append([]string{}, newPath...))
 			dfs.validPathsMap[key] = struct{}{}
 		}
 		return
@@ -270,16 +278,7 @@ func (dfs *dfsExploration) recipeAtIdx(idx int, path []string) *cooklang.Recipe 
 }
 
 func hasBeef(recipe *cooklang.Recipe) bool {
-	for _, step := range recipe.Steps {
-		for _, ingr := range step.Ingredients {
-			// fmt.Printf("ig: %v\n", ingr.Name)
-			// TODO(ingvagabund): make this configurable
-			if ingr.Name == "mlete hovezi maso" {
-				return true
-			}
-		}
-	}
-	return false
+	return recipe.Metadata[dietaryOptionKey] == "beef"
 }
 
 func hasFiber(recipe *cooklang.Recipe) bool {
@@ -333,24 +332,60 @@ func (dfs *dfsExploration) validate(path []string) bool {
 		}
 	}
 
-	// meal with fibers not repeating at most maximalFiberGap times
-	firstFiberIdx := hIndex + 1
-	for i := hIndex; i >= hIndex-maximalFiberGap; i-- {
+	return true
+}
+
+func (dfs *dfsExploration) validateFull(path []string) bool {
+	// check the history for any occurence
+	veganIdx := -1
+	for i := 0; i < maximalNonVeganGap && i < len(dfs.mealsList); i++ {
+		// fmt.Printf("do[%v]: %v\n", dfs.mealsList[i].recipe.Metadata["title"], dfs.mealsList[i].recipe.Metadata[dietaryOptionKey])
+		if dfs.mealsList[i].recipe.Metadata[dietaryOptionKey] == dietaryOptionVegetarian {
+			veganIdx = i
+			break
+		}
+	}
+	// fmt.Printf("vegetarian at %v\n", veganIdx)
+	if veganIdx == -1 {
+		// if not found the first suggested meal has to be vegetarian
+		if len(path) == 0 {
+			return false
+		}
+		if dfs.recipesMap[path[0]].Metadata[dietaryOptionKey] != dietaryOptionVegetarian {
+			return false
+		}
+	}
+	// there's at least one vegetarian meal
+
+	hIndex := len(path) - 1
+	lastHitIdx := len(path)
+	// meal with fibers not repeating at most maximalNonVeganGap times
+	for i := hIndex; i >= -maximalNonVeganGap; i-- {
 		value := dfs.recipeAtIdx(i, path)
-		// fmt.Printf("[%v]: %v\n", value.Metadata["title"].(string), hasBeef(value))
-		if hasFiber(value) {
-			// the first occurence
-			if firstFiberIdx == hIndex+1 {
-				firstFiberIdx = i
-				// the second occurence
-			} else {
-				idxDiff := firstFiberIdx - i
-				fmt.Printf("idxDiff: %v\n", idxDiff)
-				if idxDiff > firstFiberIdx {
+		// fmt.Printf("[%v]: %v\n", value.Metadata["title"].(string), value.Metadata[dietaryOptionKey].(string))
+		if value.Metadata[dietaryOptionKey].(string) == dietaryOptionVegetarian {
+			// the first occurrence
+			if lastHitIdx == hIndex+1 {
+				idxDiff := hIndex - i
+				// fmt.Printf("F(%v, %v) idxDiff: %v, %v\n", lastHitIdx, i, idxDiff, maximalNonVeganGap)
+				if idxDiff > maximalNonVeganGap {
 					return false
 				}
 			}
+			lastHitIdx = i
 		}
+		if lastHitIdx != hIndex+1 {
+			idxDiff := lastHitIdx - i
+			// fmt.Printf("O(%v, %v) idxDiff: %v, %v\n", lastHitIdx, i, idxDiff, maximalNonVeganGap)
+			if idxDiff > maximalNonVeganGap {
+				return false
+			}
+		}
+	}
+	// fmt.Printf("lastHitIdx: %v, idx: %v\n", lastHitIdx, -maximalNonVeganGap)
+	idxDiff := lastHitIdx + maximalNonVeganGap
+	if idxDiff > maximalNonVeganGap {
+		return false
 	}
 	return true
 }
