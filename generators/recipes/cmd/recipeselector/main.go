@@ -40,13 +40,15 @@ import (
 //   - at least that much fibers per N items
 
 const (
-	minimalMealGap     int = 3
-	minimalBeefGap     int = 2
+	minimalMealGap     int = 4
+	minimalBeefGap     int = 4
 	maximalNonFiberGap int = 2
 	maximalNonVeganGap int = 2
+	maximalNonFishGap  int = 3
 
 	dietaryOptionKey        = "dietary option"
 	dietaryOptionVegetarian = "vegetarian"
+	dietaryOptionFish       = "fish"
 )
 
 func readRecipeFromFile(filename string) (*cooklang.Recipe, error) {
@@ -336,11 +338,21 @@ func (dfs *dfsExploration) validate(path []string) bool {
 }
 
 func (dfs *dfsExploration) validateFull(path []string) bool {
+	if !dfs.validateFullDietaryOption(path, maximalNonVeganGap, dietaryOptionVegetarian) {
+		return false
+	}
+	if !dfs.validateFullDietaryOption(path, maximalNonFishGap, dietaryOptionFish) {
+		return false
+	}
+	return true
+}
+
+func (dfs *dfsExploration) validateFullDietaryOption(path []string, maximumGap int, dietaryOptionValue string) bool {
 	// check the history for any occurence
 	veganIdx := -1
-	for i := 0; i < maximalNonVeganGap && i < len(dfs.mealsList); i++ {
+	for i := 0; i < maximumGap && i < len(dfs.mealsList); i++ {
 		// fmt.Printf("do[%v]: %v\n", dfs.mealsList[i].recipe.Metadata["title"], dfs.mealsList[i].recipe.Metadata[dietaryOptionKey])
-		if dfs.mealsList[i].recipe.Metadata[dietaryOptionKey] == dietaryOptionVegetarian {
+		if dfs.mealsList[i].recipe.Metadata[dietaryOptionKey] == dietaryOptionValue {
 			veganIdx = i
 			break
 		}
@@ -351,7 +363,7 @@ func (dfs *dfsExploration) validateFull(path []string) bool {
 		if len(path) == 0 {
 			return false
 		}
-		if dfs.recipesMap[path[0]].Metadata[dietaryOptionKey] != dietaryOptionVegetarian {
+		if dfs.recipesMap[path[0]].Metadata[dietaryOptionKey] != dietaryOptionValue {
 			return false
 		}
 	}
@@ -359,16 +371,14 @@ func (dfs *dfsExploration) validateFull(path []string) bool {
 
 	hIndex := len(path) - 1
 	lastHitIdx := len(path)
-	// meal with fibers not repeating at most maximalNonVeganGap times
-	for i := hIndex; i >= -maximalNonVeganGap; i-- {
+	// meal with fibers not repeating at most maximumGap times
+	for i := hIndex; i >= -maximumGap; i-- {
 		value := dfs.recipeAtIdx(i, path)
-		// fmt.Printf("[%v]: %v\n", value.Metadata["title"].(string), value.Metadata[dietaryOptionKey].(string))
-		if value.Metadata[dietaryOptionKey].(string) == dietaryOptionVegetarian {
+		if value.Metadata[dietaryOptionKey].(string) == dietaryOptionValue {
 			// the first occurrence
 			if lastHitIdx == hIndex+1 {
 				idxDiff := hIndex - i
-				// fmt.Printf("F(%v, %v) idxDiff: %v, %v\n", lastHitIdx, i, idxDiff, maximalNonVeganGap)
-				if idxDiff > maximalNonVeganGap {
+				if idxDiff > maximumGap {
 					return false
 				}
 			}
@@ -376,15 +386,13 @@ func (dfs *dfsExploration) validateFull(path []string) bool {
 		}
 		if lastHitIdx != hIndex+1 {
 			idxDiff := lastHitIdx - i
-			// fmt.Printf("O(%v, %v) idxDiff: %v, %v\n", lastHitIdx, i, idxDiff, maximalNonVeganGap)
-			if idxDiff > maximalNonVeganGap {
+			if idxDiff > maximumGap {
 				return false
 			}
 		}
 	}
-	// fmt.Printf("lastHitIdx: %v, idx: %v\n", lastHitIdx, -maximalNonVeganGap)
-	idxDiff := lastHitIdx + maximalNonVeganGap
-	if idxDiff > maximalNonVeganGap {
+	idxDiff := lastHitIdx + maximumGap
+	if idxDiff > maximumGap {
 		return false
 	}
 	return true
