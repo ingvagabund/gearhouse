@@ -1,6 +1,7 @@
 apiVersion: gearhouse.io/v1alpha1
 kind: RecipeSelector
 spec:
+  mealType: "lunch"
   recipes:
   -  "data/recipes/lasagne-s-hovezim-masem.cook"
   -  "data/recipes/chilli-con-carne.cook"

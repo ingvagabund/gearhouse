@@ -28,6 +28,7 @@ type RecipeSelector struct {
 
 // Spec contains the main configuration for recipes and constraints.
 type Spec struct {
+	MealType    string      `yaml:"mealType"`
 	Recipes     []string    `yaml:"recipes"`
 	Constraints Constraints `yaml:"constraints"`
 }
@@ -42,10 +43,13 @@ type Constraints struct {
 }
 
 func validateConfig(config *RecipeSelector) error {
+	if config.Spec.MealType == "" {
+		return fmt.Errorf("meal type has to be specified")
+	}
 	// one recipe => all the meals are the same
 	// two recipes => meals alternate
 	if len(config.Spec.Recipes) < 3 {
-		return fmt.Errorf("At least three recipes need to be provided, got %v instead", len(config.Spec.Recipes))
+		return fmt.Errorf("at least three recipes need to be provided, got %v instead", len(config.Spec.Recipes))
 	}
-  return nil
+	return nil
 }

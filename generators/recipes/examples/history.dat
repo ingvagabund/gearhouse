@@ -1,37 +1,37 @@
-[2025-10-23 14:00] [meal] >> title: Kureci spizy\n>> category: lunch\n>> dietary option: chicken\n@jablko{2} @brambory{4} @sladka chilli omacka{} @provensalske koreni{} @paprika{2} @okurka hadovka{1} @cibule{2} @olej{} @sladka horcice{} @kari{} @ustricna omacka{} @kureci maso{500%g} @zampion{4} @slanina bok{200%g}
+[2025-10-23 14:00] [lunch] >> title: Kureci spizy\n>> category: lunch\n>> dietary option: chicken\n@jablko{2} @brambory{4} @sladka chilli omacka{} @provensalske koreni{} @paprika{2} @okurka hadovka{1} @cibule{2} @olej{} @sladka horcice{} @kari{} @ustricna omacka{} @kureci maso{500%g} @zampion{4} @slanina bok{200%g}
 
-[2025-10-22 13:00] [meal] >> title: Paprika s rajcetem a kuretem\n>> category: lunch\n>> dietary option: chicken\n@paprika{2} @rajcata{4} @pepr{} @plechovka bile fazole{} @kureci maso{250%g}
+[2025-10-22 13:00] [lunch] >> title: Paprika s rajcetem a kuretem\n>> category: lunch\n>> dietary option: chicken\n@paprika{2} @rajcata{4} @pepr{} @plechovka bile fazole{} @kureci maso{250%g}
 
-[2025-10-21 12:00] [meal] >> title: Losos s repou\n>> category: lunch\n>> dietary option: fish\n@kmin{} @mrazeny hrasek{30%g} @losos{150%g} @sul{} @cervena repa{} @maslo{1%lz}
+[2025-10-21 12:00] [lunch] >> title: Losos s repou\n>> category: lunch\n>> dietary option: fish\n@kmin{} @mrazeny hrasek{30%g} @losos{150%g} @sul{} @cervena repa{} @maslo{1%lz}
 
-[2025-10-19 15:00] [meal] >> title: Chilli con carne\n>> category: lunch\n>> dietary option: beef\n@olej{} @kajensky pepr{} @rimsky mlety kmin{} @mlete hovezi maso{800%g} @plechovka cervene fazole{1} @cibule{1} @cesnek{2%strouzky} @rajcata{2} @chilli papricka{1} @rajsky protlak{1} @sekana rajcata z plechovky{2} @sul{} @pepr{} @mrkev{1}
+[2025-10-19 15:00] [lunch] >> title: Chilli con carne\n>> category: lunch\n>> dietary option: beef\n@olej{} @kajensky pepr{} @rimsky mlety kmin{} @mlete hovezi maso{800%g} @plechovka cervene fazole{1} @cibule{1} @cesnek{2%strouzky} @rajcata{2} @chilli papricka{1} @rajsky protlak{1} @sekana rajcata z plechovky{2} @sul{} @pepr{} @mrkev{1}
 
-[2025-10-14 14:00] [meal] >> title: Houbove rizoto\n>> category: lunch\n>> dietary option: vegetarian\n@olej{1%lz} @pepr{} @cibule{1} @cesnek{2%strouzky} @maslo{125%g} @lesni houby (nebo zampiony){200%g} @ryze na rizoto{300%g} @sul{} @parmazan{50%g} @cerstve bilinky{} @horky zeleninovy vyvar{1%l}
-[2025-10-14 12:00] [meal] >> title: Paprika s rajcetem a kuretem\n>> category: lunch\n>> dietary option: chicken\n@paprika{2} @rajcata{4} @pepr{} @plechovka fazole a kukurice{} @kureci maso{250%g}
+[2025-10-14 14:00] [lunch] >> title: Houbove rizoto\n>> category: lunch\n>> dietary option: vegetarian\n@olej{1%lz} @pepr{} @cibule{1} @cesnek{2%strouzky} @maslo{125%g} @lesni houby (nebo zampiony){200%g} @ryze na rizoto{300%g} @sul{} @parmazan{50%g} @cerstve bilinky{} @horky zeleninovy vyvar{1%l}
+[2025-10-14 12:00] [lunch] >> title: Paprika s rajcetem a kuretem\n>> category: lunch\n>> dietary option: chicken\n@paprika{2} @rajcata{4} @pepr{} @plechovka fazole a kukurice{} @kureci maso{250%g}
 
-[2025-10-13 14:00] [meal] >> title: Losos s zampiony a batatou\n>> category: lunch\n>> dietary option: fish\n@losos{1000%g} @rohlik{4}
+[2025-10-13 14:00] [lunch] >> title: Losos s zampiony a batatou\n>> category: lunch\n>> dietary option: fish\n@losos{1000%g} @rohlik{4}
 
-[2025-10-09 12:00] [meal] >> title: Lasagne s hovezim masem\n>> category: lunch\n>> dietary option: beef\n@olej{3%lz} @sekana rajcata z plechovky{1} @parmazan|tvrdy syr{100%g} @cerstva bazalka{} @cibule{2} @smesi koreni Medvedi gril{1%lz} @provensalske koreni{1%lz} @maslo{50%g} @hladka mouka{4%lz} @smetana na vareni{250%ml} @voda{250%ml} @mlety muskatovy orisek{} @lasagne{} @cesnek{3%strouzky} @mlete hovezi maso{500%g} @sul{} @pepr{}
+[2025-10-09 12:00] [lunch] >> title: Lasagne s hovezim masem\n>> category: lunch\n>> dietary option: beef\n@olej{3%lz} @sekana rajcata z plechovky{1} @parmazan|tvrdy syr{100%g} @cerstva bazalka{} @cibule{2} @smesi koreni Medvedi gril{1%lz} @provensalske koreni{1%lz} @maslo{50%g} @hladka mouka{4%lz} @smetana na vareni{250%ml} @voda{250%ml} @mlety muskatovy orisek{} @lasagne{} @cesnek{3%strouzky} @mlete hovezi maso{500%g} @sul{} @pepr{}
 
-[2025-10-08 12:00] [meal] >> title: Gnocchi s kuretem a spenatem\n>> category: lunch\n>> dietary option: chicken\n@olej{1%lz} @cibule{1} @cesnek{2%strouzky} @cerstvy spenat{63%g} @parmazan|tvrdy syr{50%g} @pepr{} @smetana na vareni{200%ml} @gnocchi{250%g} @kureci maso{200%g}
+[2025-10-08 12:00] [lunch] >> title: Gnocchi s kuretem a spenatem\n>> category: lunch\n>> dietary option: chicken\n@olej{1%lz} @cibule{1} @cesnek{2%strouzky} @cerstvy spenat{63%g} @parmazan|tvrdy syr{50%g} @pepr{} @smetana na vareni{200%ml} @gnocchi{250%g} @kureci maso{200%g}
 
-[2025-09-29 12:00] [meal] >> title: Paprika s rajcetem a kuretem\n>> category: lunch\n>> dietary option: chicken\n@paprika{2} @rajcata{4} @pepr{} @plechovka fazole a kukurice{} @kureci maso{250%g}
+[2025-09-29 12:00] [lunch] >> title: Paprika s rajcetem a kuretem\n>> category: lunch\n>> dietary option: chicken\n@paprika{2} @rajcata{4} @pepr{} @plechovka fazole a kukurice{} @kureci maso{250%g}
 
-[2025-09-26 13:00] [meal] >> title: Lasagne s hovezim masem\n>> category: lunch\n>> dietary option: beef\n@cibule{2} @pepr{} @cerstva bazalka{} @olej{3%lz} @smesi koreni Medvedi gril{1%lz} @provensalske koreni{1%lz} @maslo{50%g} @mlete hovezi maso{500%g} @hladka mouka{4%lz} @voda{250%ml} @lasagne{} @mlety muskatovy orisek{} @cesnek{3%strouzky} @sekana rajcata z plechovky{2} @sul{} @smetana na vareni{250%ml} @parmazan|tvrdy syr{100%g}
+[2025-09-26 13:00] [lunch] >> title: Lasagne s hovezim masem\n>> category: lunch\n>> dietary option: beef\n@cibule{2} @pepr{} @cerstva bazalka{} @olej{3%lz} @smesi koreni Medvedi gril{1%lz} @provensalske koreni{1%lz} @maslo{50%g} @mlete hovezi maso{500%g} @hladka mouka{4%lz} @voda{250%ml} @lasagne{} @mlety muskatovy orisek{} @cesnek{3%strouzky} @sekana rajcata z plechovky{2} @sul{} @smetana na vareni{250%ml} @parmazan|tvrdy syr{100%g}
 
-[2025-09-25 13:00] [meal] >> title: Gnocchi s kuretem a spenatem\n>> category: lunch\n>> dietary option: chicken\n@olej{1%lz} @cibule{1} @cesnek{2%strouzky} @cerstvy spenat{63%g} @parmazan|tvrdy syr{50%g} @pepr{} @smetana na vareni{200%ml} @gnocchi{250%g} @kureci maso{200%g}
+[2025-09-25 13:00] [lunch] >> title: Gnocchi s kuretem a spenatem\n>> category: lunch\n>> dietary option: chicken\n@olej{1%lz} @cibule{1} @cesnek{2%strouzky} @cerstvy spenat{63%g} @parmazan|tvrdy syr{50%g} @pepr{} @smetana na vareni{200%ml} @gnocchi{250%g} @kureci maso{200%g}
 
-[2025-09-22 19:00] [meal] >> title: Paprika s rajcetem a kuretem\n>> category: lunch\n>> dietary option: chicken\n@paprika{2} @rajcata{4} @pepr{} @plechovka fazole a kukurice{} @kureci maso{250%g}
+[2025-09-22 19:00] [lunch] >> title: Paprika s rajcetem a kuretem\n>> category: lunch\n>> dietary option: chicken\n@paprika{2} @rajcata{4} @pepr{} @plechovka fazole a kukurice{} @kureci maso{250%g}
 
-[2025-09-21 12:00] [meal] >> title: Sekana z cervene repy\n>> category: lunch\n>> dietary option: vegetarian\n@nove koreni{2%kulicka} @vetsi mrkev{3} @kmin{1%lz} @sladka cervena paprika{1%lz} @vajicko{3} @cervena cocka{200%g} @cibule{1} @kari{1%lz} @bobkovy list{1%list}
+[2025-09-21 12:00] [lunch] >> title: Sekana z cervene repy\n>> category: lunch\n>> dietary option: vegetarian\n@nove koreni{2%kulicka} @vetsi mrkev{3} @kmin{1%lz} @sladka cervena paprika{1%lz} @vajicko{3} @cervena cocka{200%g} @cibule{1} @kari{1%lz} @bobkovy list{1%list}
 
-[2025-09-19 14:00] [meal] >> title: Gnocchi s kuretem a spenatem\n>> category: lunch\n>> dietary option: chicken\n@cesnek{2%strouzky} @cerstvy spenat{63%g} @smetana na vareni{200%ml} @parmazan|tvrdy syr{50%g} @kureci maso{200%g} @gnocchi{250%g} @olej{1%lz} @pepr{} @cibule{1}
+[2025-09-19 14:00] [lunch] >> title: Gnocchi s kuretem a spenatem\n>> category: lunch\n>> dietary option: chicken\n@cesnek{2%strouzky} @cerstvy spenat{63%g} @smetana na vareni{200%ml} @parmazan|tvrdy syr{50%g} @kureci maso{200%g} @gnocchi{250%g} @olej{1%lz} @pepr{} @cibule{1}
 
-[2025-09-16 12:00] [meal] >> title: Kureci spizy\n>> category: lunch\n>> dietary option: chicken\n@jablko{2} @brambory{4} @sladka chilli omacka{} @provensalske koreni{} @paprika{2} @okurka hadovka{1} @cibule{2} @olej{} @sladka horcice{} @kari{} @ustricna omacka{} @kureci maso{500%g} @zampion{4} @slanina bok{200%g}
+[2025-09-16 12:00] [lunch] >> title: Kureci spizy\n>> category: lunch\n>> dietary option: chicken\n@jablko{2} @brambory{4} @sladka chilli omacka{} @provensalske koreni{} @paprika{2} @okurka hadovka{1} @cibule{2} @olej{} @sladka horcice{} @kari{} @ustricna omacka{} @kureci maso{500%g} @zampion{4} @slanina bok{200%g}
 
-[2025-09-14 17:00] [meal] >> title: Gnocchi s kuretem a spenatem\n>> category: lunch\n>> dietary option: chicken\n@gnocchi{250%g} @cibule{1} @cesnek{2%strouzky} @kureci maso{200%g} @olej{1%lz} @pepr{} @cerstvy spenat{63%g} @smetana na vareni{200%ml} @parmazan|tvrdy syr{50%g}
+[2025-09-14 17:00] [lunch] >> title: Gnocchi s kuretem a spenatem\n>> category: lunch\n>> dietary option: chicken\n@gnocchi{250%g} @cibule{1} @cesnek{2%strouzky} @kureci maso{200%g} @olej{1%lz} @pepr{} @cerstvy spenat{63%g} @smetana na vareni{200%ml} @parmazan|tvrdy syr{50%g}
 
-[2025-09-08 12:00] [meal] >> title: Lasagne s hovezim masem\n>> category: lunch\n>> dietary option: beef\n@olej{3%lz} @sekana rajcata z plechovky{1} @parmazan|tvrdy syr{100%g} @cerstva bazalka{} @cibule{2} @smesi koreni Medvedi gril{1%lz} @provensalske koreni{1%lz} @maslo{50%g} @hladka mouka{4%lz} @smetana na vareni{250%ml} @voda{250%ml} @mlety muskatovy orisek{} @lasagne{} @cesnek{3%strouzky} @mlete hovezi maso{500%g} @sul{} @pepr{}
+[2025-09-08 12:00] [lunch] >> title: Lasagne s hovezim masem\n>> category: lunch\n>> dietary option: beef\n@olej{3%lz} @sekana rajcata z plechovky{1} @parmazan|tvrdy syr{100%g} @cerstva bazalka{} @cibule{2} @smesi koreni Medvedi gril{1%lz} @provensalske koreni{1%lz} @maslo{50%g} @hladka mouka{4%lz} @smetana na vareni{250%ml} @voda{250%ml} @mlety muskatovy orisek{} @lasagne{} @cesnek{3%strouzky} @mlete hovezi maso{500%g} @sul{} @pepr{}
 
-[2025-09-05 16:00] [meal] >> title: Paprika s rajcetem a kuretem\n>> category: lunch\n>> dietary option: chicken\n@paprika{2} @rajcata{4} @pepr{} @plechovka fazole a kukurice{} @kureci maso{250%g}
-[2025-09-05 14:00] [meal] >> title: Gnocchi s kuretem a spenatem\n>> category: lunch\n>> dietary option: chicken\n@olej{1%lz} @cibule{1} @cesnek{2%strouzky} @cerstvy spenat{63%g} @parmazan|tvrdy syr{50%g} @pepr{} @smetana na vareni{200%ml} @gnocchi{250%g} @kureci maso{200%g}
+[2025-09-05 16:00] [lunch] >> title: Paprika s rajcetem a kuretem\n>> category: lunch\n>> dietary option: chicken\n@paprika{2} @rajcata{4} @pepr{} @plechovka fazole a kukurice{} @kureci maso{250%g}
+[2025-09-05 14:00] [lunch] >> title: Gnocchi s kuretem a spenatem\n>> category: lunch\n>> dietary option: chicken\n@olej{1%lz} @cibule{1} @cesnek{2%strouzky} @cerstvy spenat{63%g} @parmazan|tvrdy syr{50%g} @pepr{} @smetana na vareni{200%ml} @gnocchi{250%g} @kureci maso{200%g}

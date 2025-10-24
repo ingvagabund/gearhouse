@@ -69,7 +69,7 @@ func (a meals) Len() int { return len(a) }
 func (a meals) Less(i, j int) bool { return a[i].date.After(a[j].date) }
 func (a meals) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 
-func readHistoryFromFile(filename string) ([]meal, error) {
+func readHistoryFromFile(filename string, mealType string) ([]meal, error) {
 	data, err := ioutil.ReadFile(filename)
 	if err != nil {
 		return nil, err
@@ -91,7 +91,7 @@ func readHistoryFromFile(filename string) ([]meal, error) {
 			return nil, fmt.Errorf("unable to parse line %q", line)
 		}
 
-		if matches[2] != "meal" {
+		if matches[2] != mealType {
 			continue
 		}
 
@@ -169,7 +169,7 @@ func main() {
 	}
 
 	// Read history of prepared meals
-	meals, err := readHistoryFromFile(historyFilename)
+	meals, err := readHistoryFromFile(historyFilename, config.Spec.MealType)
 	if err != nil {
 		klog.Error(err)
 		os.Exit(1)
