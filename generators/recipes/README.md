@@ -9,9 +9,8 @@ A shop is currently a simple yaml file.
 
 ```bash
 $ make build
-$ ./_output/bin/recipes2ingredients \
-  --recipe data/recipes/gnocchi-with-chicken-and-spinach.cook \
-  --recipe data/recipes/houbove-rizotto.cook \
-  --recipe data/recipes/sekana-z-cervene-repy.cook \
-  --shop data/shops/globus-brno-ivanovice.yaml
+$ ./_output/bin/recipeselector \
+  --history-filename examples/history.dat \
+  --segment-length 3 \
+  --config config/recipeselector.yaml
 ```
