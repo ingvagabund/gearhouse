@@ -1,0 +1,20 @@
+apiVersion: gearhouse.io/v1alpha1
+kind: RecipeSelector
+spec:
+  recipes:
+  -  "data/recipes/lasagne-s-hovezim-masem.cook"
+  -  "data/recipes/chilli-con-carne.cook"
+  -  "data/recipes/gnocchi-with-chicken-and-spinach.cook"
+  -  "data/recipes/paprika-rajce-kure.cook"
+  -  "data/recipes/kureci-spizy.cook"
+  -  "data/recipes/losos-s-zampiony-a-batatou.cook"
+  -  "data/recipes/losos-s-repou.cook"
+  -  "data/recipes/houbove-rizotto.cook"
+  -  "data/recipes/sekana-z-cervene-repy.cook"
+  -  "data/recipes/zapecene-brambory-s-dyni.cook"
+  constraints:
+    minimalMealGap: 5
+    minimalBeefGap: 4
+    maximalNonFiberGap: 2
+    maximalNonVeganGap: 2
+    maximalNonFishGap: 3

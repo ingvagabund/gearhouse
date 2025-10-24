@@ -19,6 +19,7 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"regexp"
 	"sort"
@@ -26,6 +27,7 @@ import (
 	"time"
 
 	"github.com/aquilax/cooklang-go"
+	"gopkg.in/yaml.v3"
 	"k8s.io/klog/v2"
 )
 
@@ -40,12 +42,6 @@ import (
 //   - at least that much fibers per N items
 
 const (
-	minimalMealGap     int = 4
-	minimalBeefGap     int = 4
-	maximalNonFiberGap int = 2
-	maximalNonVeganGap int = 2
-	maximalNonFishGap  int = 3
-
 	dietaryOptionKey        = "dietary option"
 	dietaryOptionVegetarian = "vegetarian"
 	dietaryOptionFish       = "fish"
@@ -132,13 +128,23 @@ func main() {
 	initFlags()
 	validateFlags()
 
-	// Current contraints:
-	// - each meal can not repeat in two consecutive segments
-	// - each meal can not repeat in less than 4 distinct meals
+	yamlData, err := ioutil.ReadFile(config)
+	if err != nil {
+		log.Fatalf("Error reading file %s: %v", config, err)
+	}
+
+	var config RecipeSelector
+	if err := yaml.Unmarshal(yamlData, &config); err != nil {
+		log.Fatalf("error: %v", err)
+	}
+
+	if err := validateConfig(&config); err != nil {
+		log.Fatalf("config validation error: %v", err)
+	}
 
 	recipes := []*cooklang.Recipe{}
 	// Read all recipes
-	for _, recipeFile := range recipeFilenames {
+	for _, recipeFile := range config.Spec.Recipes {
 		r, err := readRecipeFromFile(recipeFile)
 		if err != nil {
 			klog.Error(err)
@@ -181,19 +187,20 @@ func main() {
 		// fmt.Printf("[%v] #%v#%v\n", meal.date, meal.recipe.Metadata["title"], meal.recipe.Steps)
 	}
 
-	initDfsExploration(meals, recipes).startExploration()
+	initDfsExploration(meals, recipes, config.Spec.Constraints).startExploration()
 }
 
 type dfsExploration struct {
-	mealNames  []string
-	mealsList  []meal
-	recipesMap map[string]*cooklang.Recipe
+	mealNames   []string
+	mealsList   []meal
+	recipesMap  map[string]*cooklang.Recipe
+	constraints Constraints
 
 	validPaths    [][]string
 	validPathsMap map[string]struct{}
 }
 
-func initDfsExploration(meals []meal, recipes []*cooklang.Recipe) *dfsExploration {
+func initDfsExploration(meals []meal, recipes []*cooklang.Recipe, constraints Constraints) *dfsExploration {
 	// generate already existing meals
 	mealNames := []string{}
 	mealsList := []meal{}
@@ -209,6 +216,7 @@ func initDfsExploration(meals []meal, recipes []*cooklang.Recipe) *dfsExploratio
 		mealNames:     mealNames,
 		mealsList:     mealsList,
 		recipesMap:    recipesMap,
+		constraints:   constraints,
 		validPaths:    make([][]string, 0),
 		validPathsMap: make(map[string]struct{}),
 	}
@@ -298,7 +306,7 @@ func hasFiber(recipe *cooklang.Recipe) bool {
 
 func (dfs *dfsExploration) validateMinimalMealGap(path []string) bool {
 	hIndex := len(path) - 1
-	for i := hIndex - 1; i >= hIndex-minimalMealGap; i-- {
+	for i := hIndex - 1; i >= hIndex-dfs.constraints.MinimalMealGap; i-- {
 		value := dfs.mealAtIdx(i, path)
 		if path[hIndex] == value {
 			return false
@@ -316,7 +324,7 @@ func (dfs *dfsExploration) validate(path []string) bool {
 
 	// beef meat only once in a while
 	firstBeefIdx := hIndex + 1
-	for i := hIndex; i >= hIndex-minimalBeefGap; i-- {
+	for i := hIndex; i >= hIndex-dfs.constraints.MinimalBeefGap; i-- {
 		value := dfs.recipeAtIdx(i, path)
 		// fmt.Printf("[%v]: %v\n", value.Metadata["title"].(string), hasBeef(value))
 		if hasBeef(value) {
@@ -327,7 +335,7 @@ func (dfs *dfsExploration) validate(path []string) bool {
 			} else {
 				idxDiff := firstBeefIdx - i
 				// fmt.Printf("idxDiff: %v\n", idxDiff)
-				if idxDiff <= minimalBeefGap {
+				if idxDiff <= dfs.constraints.MinimalBeefGap {
 					return false
 				}
 			}
@@ -338,10 +346,10 @@ func (dfs *dfsExploration) validate(path []string) bool {
 }
 
 func (dfs *dfsExploration) validateFull(path []string) bool {
-	if !dfs.validateFullDietaryOption(path, maximalNonVeganGap, dietaryOptionVegetarian) {
+	if !dfs.validateFullDietaryOption(path, dfs.constraints.MaximalNonVeganGap, dietaryOptionVegetarian) {
 		return false
 	}
-	if !dfs.validateFullDietaryOption(path, maximalNonFishGap, dietaryOptionFish) {
+	if !dfs.validateFullDietaryOption(path, dfs.constraints.MaximalNonFishGap, dietaryOptionFish) {
 		return false
 	}
 	return true
