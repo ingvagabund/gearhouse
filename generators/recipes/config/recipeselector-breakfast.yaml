@@ -1,0 +1,12 @@
+apiVersion: gearhouse.io/v1alpha1
+kind: RecipeSelector
+spec:
+  mealType: "breakfast"
+  recipes:
+  -  "data/recipes/avokadova-pomazanka-s-vejci.cook"
+  constraints:
+    minimalMealGap: 5
+    minimalBeefGap: 4
+    maximalNonFiberGap: 2
+    maximalNonVeganGap: 2
+    maximalNonFishGap: 3
