@@ -16,6 +16,7 @@ import (
 const (
 	updateKonfluxReferencesPRTitle  = "chore(deps): update konflux references"
 	updateKonfluxReferencesPRTitle2 = "Update Konflux references"
+	updateDockerfileBundlePRTitle   = "chore(deps): update"
 )
 
 var allowedAuthors = map[string]bool{
@@ -23,11 +24,11 @@ var allowedAuthors = map[string]bool{
 }
 
 var label2comments = map[string]string{
-  "ok-to-test": "/ok-to-test",
-  "backport-risk-assessed": "/label backport-risk-assessed",
-  "verified": "/verified by CI",
-  "lgtm": "/lgtm",
-  "approved": "/approved",
+	"ok-to-test":             "/ok-to-test",
+	"backport-risk-assessed": "/label backport-risk-assessed",
+	"verified":               "/verified by CI",
+	"lgtm":                   "/lgtm",
+	"approved":               "/approved",
 }
 
 func getChangedFiles(ctx context.Context, client *github.Client, owner, repo string, prNum int) ([]string, error) {
@@ -62,6 +63,15 @@ func validateUpdateKonfluxReferences(files []string) bool {
 			return false
 		}
 		if strings.HasSuffix(file, "images-mirror-set.yaml") {
+			return false
+		}
+	}
+	return true
+}
+
+func validateUpdateBundleImageShas(files []string) bool {
+	for _, file := range files {
+		if file != "bundle.Dockerfile" {
 			return false
 		}
 	}
@@ -112,24 +122,8 @@ func ensurePRCommentBasedLabel(ctx context.Context, client *github.Client, owner
 	return err
 }
 
-func main() {
-	initFlags()
-	validateFlags()
-
-	ctx := context.Background()
-
-	token := os.Getenv("GITHUB_TOKEN")
-	if token == "" {
-		log.Fatal("Error: GITHUB_TOKEN environment variable is not set. Please set your Personal Access Token.")
-	}
-
-	ts := oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: token},
-	)
-	tc := oauth2.NewClient(ctx, ts)
-	client := github.NewClient(tc)
-
-	log.Printf("Fetching open Pull Requests for %s/%s...", organization, repository)
+func inspectRepository(ctx context.Context, client *github.Client, organization, repository string) {
+	klog.Infof("Fetching open Pull Requests for %s/%s...", organization, repository)
 
 	opts := &github.PullRequestListOptions{
 		State:       "open",
@@ -143,7 +137,7 @@ func main() {
 		log.Fatalf("Error listing PRs: %v", err)
 	}
 
-	log.Printf("Found %d open PRs.", len(prs))
+	klog.Infof("Found %d open PRs.", len(prs))
 
 	for _, pr := range prs {
 		if pr.Number == nil || pr.User == nil || pr.User.Login == nil || pr.Title == nil {
@@ -176,15 +170,56 @@ func main() {
 				if err := ensurePRLabels(ctx, client, organization, repository, prNum, pr, []string{"jira/valid-bug"}); err != nil {
 					klog.Errorf("Error labeling PR: %v", err)
 				}
-        // Produce the right labels through comments
-        for targetLabel, targetComment := range label2comments {
-          if err := ensurePRCommentBasedLabel(ctx, client, organization, repository, prNum, pr, targetLabel, targetComment); err != nil {
-            klog.Errorf("Error ensuring %q label: %v", targetLabel, err)
-          }
-        }
+				// Produce the right labels through comments
+				for targetLabel, targetComment := range label2comments {
+					if err := ensurePRCommentBasedLabel(ctx, client, organization, repository, prNum, pr, targetLabel, targetComment); err != nil {
+						klog.Errorf("Error ensuring %q label: %v", targetLabel, err)
+					}
+				}
 			} else {
 				klog.InfoS("validateUpdateKonfluxReferences: [false]")
 			}
 		}
+		if strings.Contains(*pr.Title, updateDockerfileBundlePRTitle) {
+			if validateUpdateBundleImageShas(files) {
+				// Set the right labels
+				if err := ensurePRLabels(ctx, client, organization, repository, prNum, pr, []string{"jira/valid-bug"}); err != nil {
+					klog.Errorf("Error labeling PR: %v", err)
+				}
+				// Produce the right labels through comments
+				for targetLabel, targetComment := range label2comments {
+					if err := ensurePRCommentBasedLabel(ctx, client, organization, repository, prNum, pr, targetLabel, targetComment); err != nil {
+						klog.Errorf("Error ensuring %q label: %v", targetLabel, err)
+					}
+				}
+			} else {
+				klog.InfoS("validateUpdateBundleImageShas: [false]")
+			}
+		}
 	}
+}
+
+func main() {
+	initFlags()
+	validateFlags()
+
+	ctx := context.Background()
+
+	token := os.Getenv("GITHUB_TOKEN")
+	if token == "" {
+		log.Fatal("Error: GITHUB_TOKEN environment variable is not set. Please set your Personal Access Token.")
+	}
+
+	ts := oauth2.StaticTokenSource(
+		&oauth2.Token{AccessToken: token},
+	)
+	tc := oauth2.NewClient(ctx, ts)
+	client := github.NewClient(tc)
+
+	for _, repo := range repositories {
+		items := strings.Split(repo, "/")
+		klog.InfoS("Processing repository", "organization", items[0], "repository", items[1])
+		inspectRepository(ctx, client, items[0], items[1])
+	}
+
 }

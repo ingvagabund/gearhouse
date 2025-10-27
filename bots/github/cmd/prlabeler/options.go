@@ -18,32 +18,34 @@ package main
 
 import (
 	"os"
+	"strings"
 
 	"github.com/spf13/pflag"
 	"k8s.io/klog/v2"
 )
 
 var (
-	organization string
-	repository   string
+	repositories []string
 )
 
 func initFlags() {
-	pflag.StringVar(&organization, "organization", organization, "Github organization/username")
-	pflag.StringVar(&repository, "repository", repository, "Github repository")
+	pflag.StringSliceVar(&repositories, "repository", repositories, "List of repositories to process")
 	pflag.Parse()
 }
 
 func validateFlags() {
-	if len(organization) == 0 {
-		klog.Error("Organization is required")
+	if len(repositories) == 0 {
+		klog.Error("repository is required")
 		os.Exit(1)
 		return
 	}
 
-	if len(repository) == 0 {
-		klog.Error("Repository is required")
-		os.Exit(1)
-		return
+	for _, repository := range repositories {
+		items := strings.Split(repository, "/")
+		if len(items) != 2 {
+			klog.Error("repository %q is not in a 'organization/repository' form")
+			os.Exit(1)
+			return
+		}
 	}
 }
