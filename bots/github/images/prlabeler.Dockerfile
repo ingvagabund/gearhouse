@@ -1,4 +1,4 @@
-# Copyright 2025 The Gearhouse Authors.
+# Copyright 2025 The Kubernetes Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,16 +11,21 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+FROM golang:1.24.2 AS builder
 
-IMAGE_VERSION=0.4
+WORKDIR /app
+COPY ../ .
+RUN CGO_ENABLED=0 go build -o _output/bin/prlabeler ./cmd/prlabeler
 
-.PHONY: build
-build:
-	CGO_ENABLED=0 go build -o _output/bin/prlabeler ./cmd/prlabeler
+FROM scratch
 
-image:
-	podman build -t quay.io/jchaloup/prlabeler:$(IMAGE_VERSION) -f images/prlabeler.Dockerfile .
+MAINTAINER Johhny Cottage <???@???.??>
 
-.PHONY: clean
-clean:
-	rm -rf _output
+LABEL org.opencontainers.image.source https://github.com/ingvagabund/gearhouse
+
+USER 1000
+
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+COPY --from=0 /app/_output/bin/prlabeler /bin/prlabeler
+
+CMD ["/bin/prlabeler", "--help"]
