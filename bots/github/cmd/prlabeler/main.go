@@ -22,6 +22,14 @@ var allowedAuthors = map[string]bool{
 	"red-hat-konflux[bot]": true,
 }
 
+var label2comments = map[string]string{
+  "ok-to-test": "/ok-to-test",
+  "backport-risk-assessed": "/label backport-risk-assessed",
+  "verified": "/verified by CI",
+  "lgtm": "/lgtm",
+  "approved": "/approved",
+}
+
 func getChangedFiles(ctx context.Context, client *github.Client, owner, repo string, prNum int) ([]string, error) {
 	allFiles := []string{}
 	listOpts := &github.ListOptions{PerPage: 100}
@@ -73,8 +81,6 @@ func ensurePRLabels(ctx context.Context, client *github.Client, owner, repo stri
 		}
 	}
 
-	client.Issues.RemoveLabelForIssue(ctx, owner, repo, prNum, "approve")
-
 	if len(mustHaveLabels) == 0 {
 		klog.InfoS("No missing labels for PR", "number", prNum)
 		return nil
@@ -87,6 +93,23 @@ func ensurePRLabels(ctx context.Context, client *github.Client, owner, repo stri
 	}
 
 	return nil
+}
+
+func ensurePRCommentBasedLabel(ctx context.Context, client *github.Client, owner, repo string, prNum int, pr *github.PullRequest, targetLabel, targetComment string) error {
+	for _, label := range pr.Labels {
+		if label.GetName() == targetLabel {
+			klog.InfoS("Label already present for PR", "number", prNum, "label", targetLabel)
+			return nil
+		}
+	}
+
+	comment := &github.IssueComment{
+		Body: github.String(targetComment),
+	}
+
+	klog.InfoS("Adding comment to PR", "number", prNum, "comment", targetComment)
+	_, _, err := client.Issues.CreateComment(ctx, owner, repo, prNum, comment)
+	return err
 }
 
 func main() {
@@ -149,9 +172,16 @@ func main() {
 		// Only PRs either changing just .tekton files or just Dockerfiles
 		if strings.Contains(*pr.Title, updateKonfluxReferencesPRTitle) || strings.Contains(*pr.Title, updateKonfluxReferencesPRTitle2) {
 			if validateUpdateKonfluxReferences(files) {
-				if err := ensurePRLabels(ctx, client, organization, repository, prNum, pr, []string{"lgtm", "approved"}); err != nil {
+				// Set the right labels
+				if err := ensurePRLabels(ctx, client, organization, repository, prNum, pr, []string{"jira/valid-bug"}); err != nil {
 					klog.Errorf("Error labeling PR: %v", err)
 				}
+        // Produce the right labels through comments
+        for targetLabel, targetComment := range label2comments {
+          if err := ensurePRCommentBasedLabel(ctx, client, organization, repository, prNum, pr, targetLabel, targetComment); err != nil {
+            klog.Errorf("Error ensuring %q label: %v", targetLabel, err)
+          }
+        }
 			} else {
 				klog.InfoS("validateUpdateKonfluxReferences: [false]")
 			}
