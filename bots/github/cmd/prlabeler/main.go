@@ -1,0 +1,160 @@
+package main
+
+import (
+	"context"
+	"fmt"
+	"log"
+	"os"
+	"strings"
+
+	"github.com/google/go-github/v76/github"
+	"golang.org/x/oauth2"
+
+	"k8s.io/klog/v2"
+)
+
+const (
+	updateKonfluxReferencesPRTitle  = "chore(deps): update konflux references"
+	updateKonfluxReferencesPRTitle2 = "Update Konflux references"
+)
+
+var allowedAuthors = map[string]bool{
+	"red-hat-konflux[bot]": true,
+}
+
+func getChangedFiles(ctx context.Context, client *github.Client, owner, repo string, prNum int) ([]string, error) {
+	allFiles := []string{}
+	listOpts := &github.ListOptions{PerPage: 100}
+
+	for {
+		files, resp, err := client.PullRequests.ListFiles(ctx, owner, repo, prNum, listOpts)
+		if err != nil {
+			return nil, fmt.Errorf("error listing files for PR #%d: %v", prNum, err)
+		}
+
+		for _, file := range files {
+			allFiles = append(allFiles, file.GetFilename())
+		}
+
+		if resp.NextPage == 0 {
+			break
+		}
+		listOpts.Page = resp.NextPage
+	}
+
+	return allFiles, nil
+}
+
+func validateUpdateKonfluxReferences(files []string) bool {
+	for _, file := range files {
+		if !strings.HasPrefix(file, ".tekton") {
+			return false
+		}
+		if !strings.HasSuffix(file, ".yaml") {
+			return false
+		}
+		if strings.HasSuffix(file, "images-mirror-set.yaml") {
+			return false
+		}
+	}
+	return true
+}
+
+func ensurePRLabels(ctx context.Context, client *github.Client, owner, repo string, prNum int, pr *github.PullRequest, labels []string) error {
+	existingLabels := make(map[string]struct{})
+	for _, label := range pr.Labels {
+		existingLabels[label.GetName()] = struct{}{}
+	}
+
+	mustHaveLabels := []string{}
+	for _, label := range labels {
+		if _, exists := existingLabels[label]; !exists {
+			mustHaveLabels = append(mustHaveLabels, label)
+		}
+	}
+
+	client.Issues.RemoveLabelForIssue(ctx, owner, repo, prNum, "approve")
+
+	if len(mustHaveLabels) == 0 {
+		klog.InfoS("No missing labels for PR", "number", prNum)
+		return nil
+	}
+
+	klog.InfoS("Adding missing labels to PR", "number", prNum, "labels", mustHaveLabels)
+	_, _, err := client.Issues.AddLabelsToIssue(ctx, owner, repo, prNum, mustHaveLabels)
+	if err != nil {
+		return fmt.Errorf("error adding label to PR #%d: %v", prNum, err)
+	}
+
+	return nil
+}
+
+func main() {
+	initFlags()
+	validateFlags()
+
+	ctx := context.Background()
+
+	token := os.Getenv("GITHUB_TOKEN")
+	if token == "" {
+		log.Fatal("Error: GITHUB_TOKEN environment variable is not set. Please set your Personal Access Token.")
+	}
+
+	ts := oauth2.StaticTokenSource(
+		&oauth2.Token{AccessToken: token},
+	)
+	tc := oauth2.NewClient(ctx, ts)
+	client := github.NewClient(tc)
+
+	log.Printf("Fetching open Pull Requests for %s/%s...", organization, repository)
+
+	opts := &github.PullRequestListOptions{
+		State:       "open",
+		Sort:        "updated",
+		Direction:   "desc",
+		ListOptions: github.ListOptions{PerPage: 100},
+	}
+
+	prs, _, err := client.PullRequests.List(ctx, organization, repository, opts)
+	if err != nil {
+		log.Fatalf("Error listing PRs: %v", err)
+	}
+
+	log.Printf("Found %d open PRs.", len(prs))
+
+	for _, pr := range prs {
+		if pr.Number == nil || pr.User == nil || pr.User.Login == nil || pr.Title == nil {
+			continue
+		}
+
+		prNum := *pr.Number
+		prAuthor := *pr.User.Login
+
+		klog.InfoS("Processing PR", "number", prNum, "author", prAuthor, "title", *pr.Title)
+
+		if !allowedAuthors[prAuthor] {
+			continue
+		}
+
+		files, err := getChangedFiles(ctx, client, organization, repository, prNum)
+		if err != nil {
+			klog.Errorf("Error listing files: %v", err)
+			continue
+		}
+
+		if len(files) == 0 {
+			continue
+		}
+
+		// Only PRs either changing just .tekton files or just Dockerfiles
+		if strings.Contains(*pr.Title, updateKonfluxReferencesPRTitle) || strings.Contains(*pr.Title, updateKonfluxReferencesPRTitle2) {
+			if validateUpdateKonfluxReferences(files) {
+				if err := ensurePRLabels(ctx, client, organization, repository, prNum, pr, []string{"lgtm", "approved"}); err != nil {
+					klog.Errorf("Error labeling PR: %v", err)
+				}
+			} else {
+				klog.InfoS("validateUpdateKonfluxReferences: [false]")
+			}
+		}
+	}
+}
