@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/google/go-github/v76/github"
 	"golang.org/x/oauth2"
@@ -122,6 +123,126 @@ func ensurePRCommentBasedLabel(ctx context.Context, client *github.Client, owner
 	return err
 }
 
+func getLatestRetestComment(ctx context.Context, client *github.Client, organization, repository string, prNum int) (*github.IssueComment, error) {
+	listCommentsOpts := &github.IssueListCommentsOptions{
+		Sort:      github.String("created"),
+		Direction: github.String("desc"),
+		ListOptions: github.ListOptions{
+			PerPage: 100, // Number of comments per page (max 100)
+		},
+	}
+
+	var retestComment *github.IssueComment
+
+	for {
+		// Note: We use the Issues service because GitHub treats PR comments as Issue comments.
+		comments, resp, err := client.Issues.ListComments(ctx, organization, repository, prNum, listCommentsOpts)
+		if err != nil {
+			return nil, fmt.Errorf("Error listing comments (Page %d): %v", listCommentsOpts.Page, err)
+		}
+
+		// --- Iterate over comments on the current page ---
+		for _, comment := range comments {
+			body := comment.GetBody()
+			if len(body) > 20 {
+				body = body[:20] + "..."
+			}
+			if strings.HasPrefix(body, "/retest") { // || strings.HasPrefix(body, "/retest-required") {
+				if retestComment == nil || comment.CreatedAt.GetTime().After(*retestComment.CreatedAt.GetTime()) {
+					retestComment = comment
+				}
+			}
+		}
+
+		// --- Check for next page ---
+		if resp.NextPage == 0 {
+			break // No more pages, exit the loop
+		}
+
+		// Move to the next page for the next iteration
+		listCommentsOpts.Page = resp.NextPage
+	}
+
+	return retestComment, nil
+}
+
+func getTestsToRerun(ctx context.Context, client *github.Client, organization, repository string, prNum int, pr *github.PullRequest) (map[string]string, error) {
+	// testName -> comment
+	testsToRetry := make(map[string]string)
+
+	headSHA := pr.GetHead().GetSHA()
+
+	// opts := &github.ListCheckRunsOptions{
+	// 	ListOptions: github.ListOptions{PerPage: 100},
+	// }
+	// var allCheckRuns []*github.CheckRun
+	//
+	// for {
+	// 	checkRunsResult, resp, err := client.Checks.ListCheckRunsForRef(ctx, organization, repository, headSHA, opts)
+	// 	if err != nil {
+	// 		klog.Error("Error listing check runs: %v", err)
+	// 		return
+	// 	}
+	// 	allCheckRuns = append(allCheckRuns, checkRunsResult.CheckRuns...)
+	// 	if resp.NextPage == 0 {
+	// 		break
+	// 	}
+	// 	opts.Page = resp.NextPage
+	// }
+
+	retestGHComment, err := getLatestRetestComment(ctx, client, organization, repository, prNum)
+	if err != nil {
+		return nil, fmt.Errorf("Error getting the latest retest comment: %v", err)
+	}
+
+	// List the older style statuses for the commit
+	statuses, _, err := client.Repositories.ListStatuses(ctx, organization, repository, headSHA, nil)
+	if err != nil {
+		return nil, fmt.Errorf("Could not list older commit statuses: %v", err)
+	}
+
+	latestStatuses := make(map[string]*github.RepoStatus)
+	for _, status := range statuses {
+		contextName := status.GetContext()
+		if _, exists := latestStatuses[contextName]; !exists {
+			latestStatuses[contextName] = status
+		}
+	}
+
+	for _, status := range latestStatuses {
+		fmt.Printf("Status (Legacy): %s | State: %s | Context: %s | UpdatedAt: %s\n",
+			status.GetDescription(), status.GetState(), status.GetContext(), *status.UpdatedAt.GetTime())
+		switch status.GetState() {
+		case "pending":
+			if status.UpdatedAt.GetTime() != nil {
+				if !strings.Contains(status.GetDescription(), "Job Red Hat Konflux") {
+					continue
+				}
+				// any test pending for more than 4 hours -> retry
+				now := time.Now()
+				if status.UpdatedAt.GetTime().Add(4 * time.Hour).Before(now) {
+					if retestGHComment != nil && retestGHComment.CreatedAt.GetTime().Add(4*time.Hour).After(now) {
+						klog.InfoS("PR was retested in less than 4 hours ago", "number", prNum, "delta", retestGHComment.CreatedAt.GetTime().Add(4*time.Hour).Sub(now))
+					}
+
+					if retestGHComment == nil {
+						testsToRetry[status.GetDescription()] = "/retest"
+					} else if retestGHComment != nil && retestGHComment.CreatedAt.GetTime().Add(4*time.Hour).Before(now) {
+						testsToRetry[status.GetDescription()] = "/retest"
+					}
+				}
+			}
+		case "failure":
+			switch status.GetContext() {
+			case "ci/prow/unit", "ci/prow/images", "ci/prow/e2e-aws-operator", "ci/prow/verify":
+				testsToRetry[status.GetDescription()] = "/retest-required"
+			}
+		}
+	}
+
+	return testsToRetry, nil
+}
+
 func inspectRepository(ctx context.Context, client *github.Client, organization, repository string) {
 	klog.Infof("Fetching open Pull Requests for %s/%s...", organization, repository)
 
@@ -174,6 +295,32 @@ func inspectRepository(ctx context.Context, client *github.Client, organization,
 				for targetLabel, targetComment := range label2comments {
 					if err := ensurePRCommentBasedLabel(ctx, client, organization, repository, prNum, pr, targetLabel, targetComment); err != nil {
 						klog.Errorf("Error ensuring %q label: %v", targetLabel, err)
+					}
+				}
+
+				testsToRetry, err := getTestsToRerun(ctx, client, organization, repository, prNum, pr)
+				if err != nil {
+					klog.Errorf("Error getting tests to run: %v", err)
+				} else {
+					retestComment := ""
+					fmt.Printf("Tests to retry:\n")
+					for testName := range testsToRetry {
+						fmt.Printf("\t%v: %v\n", testName, testsToRetry[testName])
+						if testsToRetry[testName] == "/retest" {
+							retestComment = "/retest"
+							break
+						}
+						if testsToRetry[testName] == "/retest-required" && retestComment != "/retest" {
+							retestComment = "/retest-required"
+						}
+					}
+
+					if retestComment != "" {
+						klog.InfoS("Adding comment to PR", "number", prNum, "comment", retestComment)
+						_, _, err := client.Issues.CreateComment(ctx, organization, repository, prNum, &github.IssueComment{Body: github.String(retestComment)})
+						if err != nil {
+							klog.Errorf("Error adding a comment: %v", err)
+						}
 					}
 				}
 			} else {
