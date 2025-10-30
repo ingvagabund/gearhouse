@@ -166,9 +166,10 @@ func getLatestRetestComment(ctx context.Context, client *github.Client, organiza
 	return retestComment, nil
 }
 
-func getTestsToRerun(ctx context.Context, client *github.Client, organization, repository string, prNum int, pr *github.PullRequest) (map[string]string, error) {
+func getTestsToRerun(ctx context.Context, client *github.Client, organization, repository string, prNum int, pr *github.PullRequest) (map[string]string, []string, error) {
 	// testName -> comment
 	testsToRetry := make(map[string]string)
+	overrides := []string{}
 
 	headSHA := pr.GetHead().GetSHA()
 
@@ -192,13 +193,13 @@ func getTestsToRerun(ctx context.Context, client *github.Client, organization, r
 
 	retestGHComment, err := getLatestRetestComment(ctx, client, organization, repository, prNum)
 	if err != nil {
-		return nil, fmt.Errorf("Error getting the latest retest comment: %v", err)
+		return nil, nil, fmt.Errorf("Error getting the latest retest comment: %v", err)
 	}
 
 	// List the older style statuses for the commit
 	statuses, _, err := client.Repositories.ListStatuses(ctx, organization, repository, headSHA, nil)
 	if err != nil {
-		return nil, fmt.Errorf("Could not list older commit statuses: %v", err)
+		return nil, nil, fmt.Errorf("Could not list older commit statuses: %v", err)
 	}
 
 	latestStatuses := make(map[string]*github.RepoStatus)
@@ -235,12 +236,61 @@ func getTestsToRerun(ctx context.Context, client *github.Client, organization, r
 		case "failure":
 			switch status.GetContext() {
 			case "ci/prow/unit", "ci/prow/images", "ci/prow/e2e-aws-operator", "ci/prow/verify":
-				testsToRetry[status.GetDescription()] = "/retest-required"
+				// testsToRetry[status.GetDescription()] = "/retest-required"
+				overrides = append(overrides, status.GetContext())
 			}
 		}
 	}
 
-	return testsToRetry, nil
+	return testsToRetry, overrides, nil
+}
+
+func reconcilePR(ctx context.Context, client *github.Client, organization, repository string, prNum int, pr *github.PullRequest) {
+	// Set the right labels
+	if err := ensurePRLabels(ctx, client, organization, repository, prNum, pr, []string{"jira/valid-bug"}); err != nil {
+		klog.Errorf("Error labeling PR: %v", err)
+	}
+	// Produce the right labels through comments
+	for targetLabel, targetComment := range label2comments {
+		if err := ensurePRCommentBasedLabel(ctx, client, organization, repository, prNum, pr, targetLabel, targetComment); err != nil {
+			klog.Errorf("Error ensuring %q label: %v", targetLabel, err)
+		}
+	}
+
+	testsToRetry, overrides, err := getTestsToRerun(ctx, client, organization, repository, prNum, pr)
+	if err != nil {
+		klog.Errorf("Error getting tests to run: %v", err)
+	} else {
+		retestComment := ""
+		fmt.Printf("Tests to retry:\n")
+		for testName := range testsToRetry {
+			fmt.Printf("\t%v: %v\n", testName, testsToRetry[testName])
+			if testsToRetry[testName] == "/retest" {
+				retestComment = "/retest"
+				break
+			}
+			if testsToRetry[testName] == "/retest-required" && retestComment != "/retest" {
+				retestComment = "/retest-required"
+			}
+		}
+
+		if retestComment != "" {
+			klog.InfoS("Adding comment to PR", "number", prNum, "comment", retestComment)
+			_, _, err := client.Issues.CreateComment(ctx, organization, repository, prNum, &github.IssueComment{Body: github.String(retestComment)})
+			if err != nil {
+				klog.Errorf("Error adding a comment: %v", err)
+			}
+		}
+		// apply overrides
+		for _, override := range overrides {
+			overrideComment := fmt.Sprintf("/override %v", override)
+			klog.InfoS("Adding comment to PR", "number", prNum, "comment", overrideComment)
+			_, _, err := client.Issues.CreateComment(ctx, organization, repository, prNum, &github.IssueComment{Body: github.String(overrideComment)})
+			if err != nil {
+				klog.Errorf("Error adding a comment: %v", err)
+			}
+		}
+	}
 }
 
 func inspectRepository(ctx context.Context, client *github.Client, organization, repository string) {
@@ -287,58 +337,14 @@ func inspectRepository(ctx context.Context, client *github.Client, organization,
 		// Only PRs either changing just .tekton files or just Dockerfiles
 		if strings.Contains(*pr.Title, updateKonfluxReferencesPRTitle) || strings.Contains(*pr.Title, updateKonfluxReferencesPRTitle2) {
 			if validateUpdateKonfluxReferences(files) {
-				// Set the right labels
-				if err := ensurePRLabels(ctx, client, organization, repository, prNum, pr, []string{"jira/valid-bug"}); err != nil {
-					klog.Errorf("Error labeling PR: %v", err)
-				}
-				// Produce the right labels through comments
-				for targetLabel, targetComment := range label2comments {
-					if err := ensurePRCommentBasedLabel(ctx, client, organization, repository, prNum, pr, targetLabel, targetComment); err != nil {
-						klog.Errorf("Error ensuring %q label: %v", targetLabel, err)
-					}
-				}
-
-				testsToRetry, err := getTestsToRerun(ctx, client, organization, repository, prNum, pr)
-				if err != nil {
-					klog.Errorf("Error getting tests to run: %v", err)
-				} else {
-					retestComment := ""
-					fmt.Printf("Tests to retry:\n")
-					for testName := range testsToRetry {
-						fmt.Printf("\t%v: %v\n", testName, testsToRetry[testName])
-						if testsToRetry[testName] == "/retest" {
-							retestComment = "/retest"
-							break
-						}
-						if testsToRetry[testName] == "/retest-required" && retestComment != "/retest" {
-							retestComment = "/retest-required"
-						}
-					}
-
-					if retestComment != "" {
-						klog.InfoS("Adding comment to PR", "number", prNum, "comment", retestComment)
-						_, _, err := client.Issues.CreateComment(ctx, organization, repository, prNum, &github.IssueComment{Body: github.String(retestComment)})
-						if err != nil {
-							klog.Errorf("Error adding a comment: %v", err)
-						}
-					}
-				}
+				reconcilePR(ctx, client, organization, repository, prNum, pr)
 			} else {
 				klog.InfoS("validateUpdateKonfluxReferences: [false]")
 			}
 		}
 		if strings.Contains(*pr.Title, updateDockerfileBundlePRTitle) {
 			if validateUpdateBundleImageShas(files) {
-				// Set the right labels
-				if err := ensurePRLabels(ctx, client, organization, repository, prNum, pr, []string{"jira/valid-bug"}); err != nil {
-					klog.Errorf("Error labeling PR: %v", err)
-				}
-				// Produce the right labels through comments
-				for targetLabel, targetComment := range label2comments {
-					if err := ensurePRCommentBasedLabel(ctx, client, organization, repository, prNum, pr, targetLabel, targetComment); err != nil {
-						klog.Errorf("Error ensuring %q label: %v", targetLabel, err)
-					}
-				}
+				reconcilePR(ctx, client, organization, repository, prNum, pr)
 			} else {
 				klog.InfoS("validateUpdateBundleImageShas: [false]")
 			}
