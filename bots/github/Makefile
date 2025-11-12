@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-IMAGE_VERSION=0.4
+IMAGE_VERSION=0.6
 
 .PHONY: build
 build:
@@ -20,6 +20,9 @@ build:
 
 image:
 	podman build -t quay.io/jchaloup/prlabeler:$(IMAGE_VERSION) -f images/prlabeler.Dockerfile .
+
+push:
+	podman push quay.io/jchaloup/prlabeler:$(IMAGE_VERSION)
 
 .PHONY: clean
 clean:

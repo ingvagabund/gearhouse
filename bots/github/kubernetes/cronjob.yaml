@@ -5,7 +5,7 @@ metadata:
   namespace: default
 spec:
   # 1. Schedule: Runs every five minutes (e.g., at 0, 5, 10, 15... minutes past the hour)
-  schedule: "0 */4 * * *"
+  schedule: "0 */8 * * *"
   # schedule: "*/5 * * * *"
 
   # 2. Job Template: Defines the Job that will be run on schedule
@@ -23,7 +23,7 @@ spec:
           containers:
           - name: cron-container
             # Use a lightweight image like busybox for simple scripts
-            image: quay.io/jchaloup/prlabeler:0.4
+            image: quay.io/jchaloup/prlabeler:0.6
             # The command to execute on the schedule
             command:
             - /bin/prlabeler

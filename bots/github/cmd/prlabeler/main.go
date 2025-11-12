@@ -15,9 +15,10 @@ import (
 )
 
 const (
-	updateKonfluxReferencesPRTitle  = "chore(deps): update konflux references"
-	updateKonfluxReferencesPRTitle2 = "Update Konflux references"
-	updateDockerfileBundlePRTitle   = "chore(deps): update"
+	updateKonfluxReferencesPRTitle     = "chore(deps): update konflux references"
+	updateKonfluxReferencesPRTitle2    = "Update Konflux references"
+	updateDockerfileBundlePRTitle      = "chore(deps): update"
+	updateDockerfileUbi9MinimalPRTitle = "chore(deps): update registry.access.redhat.com/ubi9/ubi-minimal:latest"
 )
 
 var allowedAuthors = map[string]bool{
@@ -73,6 +74,15 @@ func validateUpdateKonfluxReferences(files []string) bool {
 func validateUpdateBundleImageShas(files []string) bool {
 	for _, file := range files {
 		if file != "bundle.Dockerfile" {
+			return false
+		}
+	}
+	return true
+}
+
+func validateUpdateUbi9MinimalBaseImage(files []string) bool {
+	for _, file := range files {
+		if file != "bundle.Dockerfile" && file != "Dockerfile" {
 			return false
 		}
 	}
@@ -256,7 +266,7 @@ func reconcilePR(ctx context.Context, client *github.Client, organization, repos
 			klog.Errorf("Error ensuring %q label: %v", targetLabel, err)
 		}
 	}
-
+	fmt.Printf("reconcilePR\n")
 	testsToRetry, overrides, err := getTestsToRerun(ctx, client, organization, repository, prNum, pr)
 	if err != nil {
 		klog.Errorf("Error getting tests to run: %v", err)
@@ -341,6 +351,8 @@ func inspectRepository(ctx context.Context, client *github.Client, organization,
 			} else {
 				klog.InfoS("validateUpdateKonfluxReferences: [false]")
 			}
+		} else {
+			klog.Infof("PR does not resemble tekton files update")
 		}
 		if strings.Contains(*pr.Title, updateDockerfileBundlePRTitle) {
 			if validateUpdateBundleImageShas(files) {
@@ -348,6 +360,17 @@ func inspectRepository(ctx context.Context, client *github.Client, organization,
 			} else {
 				klog.InfoS("validateUpdateBundleImageShas: [false]")
 			}
+		} else {
+			klog.Infof("PR does not resemble a bundle.Dockerfile update")
+		}
+		if strings.Contains(*pr.Title, updateDockerfileUbi9MinimalPRTitle) {
+			if validateUpdateUbi9MinimalBaseImage(files) {
+				reconcilePR(ctx, client, organization, repository, prNum, pr)
+			} else {
+				klog.InfoS("validateUpdateUbi9MinimalBaseImage: [false]")
+			}
+		} else {
+			klog.Infof("PR does not resemble a bundle.Dockerfile update")
 		}
 	}
 }
