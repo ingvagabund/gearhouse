@@ -23,16 +23,18 @@ spec:
           containers:
           - name: cron-container
             # Use a lightweight image like busybox for simple scripts
-            image: quay.io/jchaloup/prlabeler:0.6
+            image: quay.io/jchaloup/prlabeler:0.7
             # The command to execute on the schedule
             command:
             - /bin/prlabeler
             args:
-            - "--repository=openshift/descheduler"
             - "--repository=openshift/cluster-kube-descheduler-operator"
+            - "--repository=openshift/descheduler"
             - "--repository=openshift/secondary-scheduler-operator"
             - "--repository=openshift/run-once-duration-override-operator"
             - "--repository=openshift/run-once-duration-override"
+            - "--repository=openshift/cli-manager-operator"
+            - "--repository=openshift/cli-manager"
             env:
             - name: GITHUB_TOKEN
               valueFrom:

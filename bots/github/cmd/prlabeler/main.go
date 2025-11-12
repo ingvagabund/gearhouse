@@ -30,7 +30,7 @@ var label2comments = map[string]string{
 	"backport-risk-assessed": "/label backport-risk-assessed",
 	"verified":               "/verified by CI",
 	"lgtm":                   "/lgtm",
-	"approved":               "/approved",
+	"approved":               "/approve",
 }
 
 func getChangedFiles(ctx context.Context, client *github.Client, owner, repo string, prNum int) ([]string, error) {
