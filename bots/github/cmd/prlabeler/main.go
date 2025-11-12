@@ -257,7 +257,7 @@ func getTestsToRerun(ctx context.Context, client *github.Client, organization, r
 
 func reconcilePR(ctx context.Context, client *github.Client, organization, repository string, prNum int, pr *github.PullRequest) {
 	// Set the right labels
-	if err := ensurePRLabels(ctx, client, organization, repository, prNum, pr, []string{"jira/valid-bug"}); err != nil {
+	if err := ensurePRLabels(ctx, client, organization, repository, prNum, pr, []string{"jira/valid-bug", "jira/valid-reference"}); err != nil {
 		klog.Errorf("Error labeling PR: %v", err)
 	}
 	// Produce the right labels through comments
