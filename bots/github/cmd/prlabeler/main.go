@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"maps"
 	"os"
 	"strings"
 	"time"
@@ -15,15 +16,13 @@ import (
 )
 
 const (
+	konfluxAuthor                      = "red-hat-konflux[bot]"
+	ingvagabundAuthor                  = "ingvagabund"
 	updateKonfluxReferencesPRTitle     = "chore(deps): update konflux references"
 	updateKonfluxReferencesPRTitle2    = "Update Konflux references"
 	updateDockerfileBundlePRTitle      = "chore(deps): update"
 	updateDockerfileUbi9MinimalPRTitle = "chore(deps): update registry.access.redhat.com/ubi9/ubi-minimal:latest"
 )
-
-var allowedAuthors = map[string]bool{
-	"red-hat-konflux[bot]": true,
-}
 
 var label2comments = map[string]string{
 	"ok-to-test":             "/ok-to-test",
@@ -255,7 +254,7 @@ func getTestsToRerun(ctx context.Context, client *github.Client, organization, r
 	return testsToRetry, overrides, nil
 }
 
-func reconcilePR(ctx context.Context, client *github.Client, organization, repository string, prNum int, pr *github.PullRequest) {
+func reconcilePR(ctx context.Context, client *github.Client, organization, repository string, prNum int, pr *github.PullRequest, label2comments map[string]string) {
 	// Set the right labels
 	if err := ensurePRLabels(ctx, client, organization, repository, prNum, pr, []string{"jira/valid-bug", "jira/valid-reference"}); err != nil {
 		klog.Errorf("Error labeling PR: %v", err)
@@ -303,7 +302,7 @@ func reconcilePR(ctx context.Context, client *github.Client, organization, repos
 	}
 }
 
-func inspectRepository(ctx context.Context, client *github.Client, organization, repository string) {
+func inspectRepository(ctx context.Context, client *github.Client, organization, repository string, allowedAuthors map[string]bool) {
 	klog.Infof("Fetching open Pull Requests for %s/%s...", organization, repository)
 
 	opts := &github.PullRequestListOptions{
@@ -344,33 +343,44 @@ func inspectRepository(ctx context.Context, client *github.Client, organization,
 			continue
 		}
 
-		// Only PRs either changing just .tekton files or just Dockerfiles
-		if strings.Contains(*pr.Title, updateKonfluxReferencesPRTitle) || strings.Contains(*pr.Title, updateKonfluxReferencesPRTitle2) {
-			if validateUpdateKonfluxReferences(files) {
-				reconcilePR(ctx, client, organization, repository, prNum, pr)
+		if prAuthor == konfluxAuthor {
+			// Only PRs either changing just .tekton files or just Dockerfiles
+			if strings.Contains(*pr.Title, updateKonfluxReferencesPRTitle) || strings.Contains(*pr.Title, updateKonfluxReferencesPRTitle2) {
+				if validateUpdateKonfluxReferences(files) {
+					reconcilePR(ctx, client, organization, repository, prNum, pr, label2comments)
+				} else {
+					klog.InfoS("validateUpdateKonfluxReferences: [false]")
+				}
 			} else {
-				klog.InfoS("validateUpdateKonfluxReferences: [false]")
+				klog.Infof("PR does not resemble tekton files update")
 			}
-		} else {
-			klog.Infof("PR does not resemble tekton files update")
-		}
-		if strings.Contains(*pr.Title, updateDockerfileBundlePRTitle) {
-			if validateUpdateBundleImageShas(files) {
-				reconcilePR(ctx, client, organization, repository, prNum, pr)
+			if strings.Contains(*pr.Title, updateDockerfileBundlePRTitle) {
+				if validateUpdateBundleImageShas(files) {
+					reconcilePR(ctx, client, organization, repository, prNum, pr, label2comments)
+				} else {
+					klog.InfoS("validateUpdateBundleImageShas: [false]")
+				}
 			} else {
-				klog.InfoS("validateUpdateBundleImageShas: [false]")
+				klog.Infof("PR does not resemble a bundle.Dockerfile update")
 			}
-		} else {
-			klog.Infof("PR does not resemble a bundle.Dockerfile update")
-		}
-		if strings.Contains(*pr.Title, updateDockerfileUbi9MinimalPRTitle) {
-			if validateUpdateUbi9MinimalBaseImage(files) {
-				reconcilePR(ctx, client, organization, repository, prNum, pr)
+			if strings.Contains(*pr.Title, updateDockerfileUbi9MinimalPRTitle) {
+				if validateUpdateUbi9MinimalBaseImage(files) {
+					reconcilePR(ctx, client, organization, repository, prNum, pr, label2comments)
+				} else {
+					klog.InfoS("validateUpdateUbi9MinimalBaseImage: [false]")
+				}
 			} else {
-				klog.InfoS("validateUpdateUbi9MinimalBaseImage: [false]")
+				klog.Infof("PR does not resemble a bundle.Dockerfile update")
 			}
-		} else {
-			klog.Infof("PR does not resemble a bundle.Dockerfile update")
+		} else if prAuthor == ingvagabundAuthor {
+			if strings.Contains(*pr.Title, "[auto]") {
+				m := maps.Clone(label2comments)
+				delete(m, "lgtm")
+				reconcilePR(ctx, client, organization, repository, prNum, pr, m)
+				if err := ensurePRLabels(ctx, client, organization, repository, prNum, pr, []string{"jira/valid-bug", "jira/valid-reference", "lgtm"}); err != nil {
+					klog.Errorf("Error labeling PR: %v", err)
+				}
+			}
 		}
 	}
 }
@@ -392,10 +402,18 @@ func main() {
 	tc := oauth2.NewClient(ctx, ts)
 	client := github.NewClient(tc)
 
+	allowedAuthors := map[string]bool{
+		konfluxAuthor:     true,
+	}
+
+	for _, author := range withAuthors {
+		allowedAuthors[ author ] = true
+	}
+
 	for _, repo := range repositories {
 		items := strings.Split(repo, "/")
 		klog.InfoS("Processing repository", "organization", items[0], "repository", items[1])
-		inspectRepository(ctx, client, items[0], items[1])
+		inspectRepository(ctx, client, items[0], items[1], allowedAuthors)
 	}
 
 }

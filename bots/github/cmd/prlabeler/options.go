@@ -26,10 +26,12 @@ import (
 
 var (
 	repositories []string
+	withAuthors []string
 )
 
 func initFlags() {
 	pflag.StringSliceVar(&repositories, "repository", repositories, "List of repositories to process")
+	pflag.StringSliceVar(&withAuthors, "with-author", withAuthors, "List of authors to reconcile (accepting PRs with `[auto]` string set in their summary)")
 	pflag.Parse()
 }
 
