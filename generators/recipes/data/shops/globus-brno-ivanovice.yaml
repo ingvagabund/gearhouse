@@ -7,6 +7,7 @@ categories:
   - mrkev
   - petrzel
   - cibule
+  - salotka
   - cesnek
   - dyne hokaido
   - brambory
@@ -46,6 +47,7 @@ categories:
 - name: "mlecne vyrobky"
   list:
   - smetana na vareni
+  - smetana ke slehani
   - maslo
   - mascarpone
   - mleko
@@ -66,10 +68,12 @@ categories:
   - mlety muskatovy orisek
   - provensalske koreni
   - tymian
-  - rimsky mlety kmin
+  - mlety rimsky kmin
   - kajensky pepr
   - prasek do peciva
   - pernikove koreni
+  - mlety koriandr
+  - garam masala
 - name: "oleje a omacky"
   list:
   - olej
@@ -79,6 +83,8 @@ categories:
 - name: "lusteniny"
   list:
   - cervena cocka
+  - cerna cocka
+  - cervene fazole
   - gnocchi
   - ryze na rizoto
   - lasagne
@@ -95,3 +101,4 @@ categories:
   - plechovka fazole a kukurice
   - rajsky protlak
   - plechovka cervene fazole
+  - drcena rajcata

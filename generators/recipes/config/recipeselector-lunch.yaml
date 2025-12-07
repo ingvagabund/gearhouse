@@ -11,8 +11,9 @@ spec:
   -  "data/recipes/losos-s-zampiony-a-batatou.cook"
   -  "data/recipes/losos-s-repou.cook"
   -  "data/recipes/houbove-rizotto.cook"
-  -  "data/recipes/sekana-z-cervene-repy.cook"
+  -  "data/recipes/sekana-z-cervene-cocky.cook"
   -  "data/recipes/zapecene-brambory-s-dyni.cook"
+  -  "data/recipes/dhal-makhani.cook"
   constraints:
     minimalMealGap: 5
     minimalBeefGap: 4
