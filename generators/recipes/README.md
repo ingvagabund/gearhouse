@@ -12,5 +12,5 @@ $ make build
 $ ./_output/bin/recipeselector \
   --history-filename examples/history.dat \
   --segment-length 3 \
-  --config config/recipeselector.yaml
+  --config config/recipeselector-lunch.yaml
 ```

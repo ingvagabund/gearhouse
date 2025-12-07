@@ -12,10 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+HISTORY_FILE ?= examples/history.dat
+
 .PHONY: build
 build:
 	CGO_ENABLED=0 go build -o _output/bin/recipes2ingredients ./cmd/recipes2ingredients
 	CGO_ENABLED=0 go build -o _output/bin/recipeselector ./cmd/recipeselector
+
+generate: build
+	./_output/bin/recipeselector \
+	  --history-filename $(HISTORY_FILE) \
+	  --config config/recipeselector-lunch.yaml
 
 .PHONY: example
 example: build
